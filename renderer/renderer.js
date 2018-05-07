@@ -58,6 +58,7 @@ function displayPathDirs(myPath) {
     document.addEventListener('DOMContentLoaded',function () {
         document.getElementById('listed-dirs').innerHTML = `<ul id="display-dirs"></ul>`;
 
+        let path = require('path');
         let parsedPath = path.parse(myPath);
         let dirs_links = [];
         let dirs = parsedPath.dir.split(path.sep);
@@ -75,13 +76,13 @@ function displayPathDirs(myPath) {
 
             if (i !== 0) {
                 current_dir = dirs[i - 1];
-                current_link = dirs_links[i - 1];
+                current_link = dirs_links[i] + '/';
             }
 
             document.getElementById('display-dirs').innerHTML += `<li class="uk-active"><a href=${current_link}>${current_dir}</a></li>`;
 
-            if (i !== dirs.length - 1)
-                document.getElementById('display-dirs').innerHTML += `<hr class="uk-margin-remove">`;
+            //if (i !== dirs.length - 1)
+                //document.getElementById('display-dirs').innerHTML += `<hr class="uk-margin-remove">`;
         }
     });
 }
