@@ -13,6 +13,7 @@ function handleError(err) {
 function readFolder(path) {
     fs.readdir(path, (err, files) => {
         'use strict';
+
         if (err) handleError(err);
         else {
             //Dynamically add <ol> tags to the div
@@ -42,13 +43,21 @@ function readFolder(path) {
 
             }
         }
+
+        document.getElementById('nav-bar').innerHTML = `<input id="path-input" class="uk-input" type="text" value=${path}>`;
+        document.getElementById('nav-bar').innerHTML += `<a onclick="openNew()" class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="icon: play"></a>`;
     });
 }
 
-function getPathDirs(path) {
+function openNew() {
+    let input = document.getElementById("path-input").value;
+    readFolder(input);
+}
+
+function getPathDirs(myPath) {
     document.getElementById('listed-dirs').innerHTML = `<ul id="display-dirs"></ul>`;
 
-    let parsedPath = path.parse(path);
+    let parsedPath = path.parse(myPath);
     let dirs_links = [];
     let dirs = parsedPath.dir.split(path.sep);
 
@@ -74,8 +83,4 @@ function getPathDirs(path) {
             document.getElementById('display-dirs').innerHTML += `<hr class="uk-margin-remove">`;
     }
 
-}
-
-function printCurrentPath() {
-    document.getElementById('nav-bar').innerHTML = `<input id="path-input" class="uk-input" type="text" value="Mickey">`;
 }
