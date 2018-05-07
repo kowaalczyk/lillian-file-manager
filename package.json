@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/kowaalczyk/lillian-file-manager/issues"
   },
-  "homepage": "https://github.com/kowaalczyk/lillian-file-manager#readme"
+  "homepage": "https://github.com/kowaalczyk/lillian-file-manager#readme",
+  "dependencies": {
+    "electron": "^2.0.0"
+  }
 }
