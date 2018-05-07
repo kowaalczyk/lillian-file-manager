@@ -7,7 +7,9 @@ TODO
 
 ## Installation  
 
-TODO  
+```shell
+npm install
+```
 
 ## Running project  
 Assuming you have node.js, npm and electron.js installed, in project folder execute:  
