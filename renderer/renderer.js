@@ -78,8 +78,22 @@ function displayTopPanel(path) {
     document.getElementById('nav-bar').innerHTML += `<a onclick="openFromNav()" class="uk-form-icon uk-form-icon-flip" uk-icon="icon: play"></a>`;
 }
 
+function handler(e){
+    e.stopPropagation();
+    e.preventDefault();
+}
+
 function displayAllPanels(path) {
+    document.addEventListener("click", handler, true);
+    document.addEventListener("dblclick", handler, true);
+
     displayFolderContent(path);
     displayPathDirs(path);
     displayTopPanel(path);
+
+    setTimeout(function(){
+        document.removeEventListener("click", handler, true);
+        document.removeEventListener("dblclick", handler, true);
+        }, 200
+    );
 }

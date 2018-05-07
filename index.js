@@ -16,7 +16,7 @@ app.on('ready',event=>{
         global.sharedObject = {prop1: ''};
         win.loadURL(`file://${__dirname}/static/html/practice_tomek.html`);
     } else if (process.argv.length === 3) {
-        console.error('Argument!');
+        // console.error('Argument!');
         global.sharedObject = {prop1: process.argv};
         win.loadURL(`file://${__dirname}/static/html/practice_tomek.html`);
     }
