@@ -34,7 +34,7 @@ function readFolder(path) {
                             document.getElementById('display-files').innerHTML += `<div id=${theID} ondblclick="readFolder(this.id)" class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/icon64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
                         }
                         else {
-                            document.getElementById('display-files').innerHTML += `<div id=${theID} ondblclick="readFolder(this.id)" class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/file64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
+                            document.getElementById('display-files').innerHTML += `<div class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/file64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
                             //document.getElementById('display-files').innerHTML += `<li id=${theID} ondblclick="openFile(this.id)"><img src="../img/file64.png" width="64" height="64">${file}</li>`;
                         }
                     }
