@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lillian</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.40/css/uikit.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.40/js/uikit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.40/js/uikit-icons.min.js"></script>
+
+    <script src="../../renderer/renderer.js"></script>
+    <script>
+        /*
+        We create an IIFE (immediately invoked function expression) that will be executed immediately the app loads.
+        This brings the need to load the script above because we are loading a function in that script. If we don't load it, the function below will throw a ' call to undefined function' error
+         */
+        (function () {
+            //the root folder will be our default path
+
+            let remote = require('electron').remote,
+                arguments = remote.getGlobal('sharedObject').prop1;
+
+            readFolder(arguments[2]);
+            getPathDirs(arguments[2]);
+        })();
+    </script>
+</head>
+<body class="uk-flex uk-flex-column">
+<nav class="uk-navbar-container uk-padding-small uk-navbar-transparent uk-background-primary" uk-navbar>
+    <div class="uk-inline uk-width-expand">
+        <a class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="icon: play"></a>
+        <input id="path-input" class="uk-input" type="text">
+    </div>
+</nav>
+<section id="main-section" class="uk-flex uk-flex-row">
+    <aside class="uk-padding-small uk-width-small uk-background-secondary">
+        <div id="listed-dirs" class="uk-nav uk-padding-top uk-nav-default uk-text-center">
+            <script>
+                require('../renderer/renderer');
+            </script>
+        </div>
+    </aside>
+    <section id="listed-files" class="uk-text-center uk-padding uk-flex uk-flex-top uk-flex-left uk-grid">
+        <script>
+            require('../renderer/renderer');
+        </script>
+    </section>
+</section>
+</body>
+</html>

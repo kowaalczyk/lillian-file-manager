@@ -1,0 +1,20 @@
+{
+  "name": "lillian-file-manager",
+  "version": "1.0.0",
+  "description": "A file manager created in electron.js, assignment for software engneering course at MIM UW, spring semester 2017-18.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "index": "electron . ~/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kowaalczyk/lillian-file-manager.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kowaalczyk/lillian-file-manager/issues"
+  },
+  "homepage": "https://github.com/kowaalczyk/lillian-file-manager#readme"
+}
