@@ -8,23 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.40/js/uikit.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.40/js/uikit-icons.min.js"></script>
 
-    <script src="../../renderer/renderer.js"></script>
-    <script>
-        /*
-        We create an IIFE (immediately invoked function expression) that will be executed immediately the app loads.
-        This brings the need to load the script above because we are loading a function in that script. If we don't load it, the function below will throw a ' call to undefined function' error
-         */
-        (function () {
-            //the root folder will be our default path
 
-            let remote = require('electron').remote,
-                arguments = remote.getGlobal('sharedObject').prop1;
-
-            readFolder(arguments[2]);
-            getPathDirs(arguments[2]);
-            printCurrentPath();
-        })();
-    </script>
 </head>
 <body class="uk-flex uk-flex-column">
 <nav class="uk-navbar-container uk-padding-small uk-navbar-transparent uk-background-primary" uk-navbar>
@@ -39,5 +23,21 @@
     <section id="listed-files" class="uk-text-center uk-padding uk-flex uk-flex-top uk-flex-left uk-grid">
     </section>
 </section>
+<script src="../../renderer/renderer.js"></script>
+<script>
+    /*
+    We create an IIFE (immediately invoked function expression) that will be executed immediately the app loads.
+    This brings the need to load the script above because we are loading a function in that script. If we don't load it, the function below will throw a ' call to undefined function' error
+     */
+    (function () {
+        //the root folder will be our default path
+
+        let remote = require('electron').remote,
+            arguments = remote.getGlobal('sharedObject').prop1;
+
+        readFolder(arguments[2]);
+        displayPathDirs(arguments[2]);
+    })();
+</script>
 </body>
 </html>

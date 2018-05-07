@@ -45,42 +45,43 @@ function readFolder(path) {
         }
 
         document.getElementById('nav-bar').innerHTML = `<input id="path-input" class="uk-input" type="text" value=${path}>`;
-        document.getElementById('nav-bar').innerHTML += `<a onclick="openNew()" class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="icon: play"></a>`;
+        document.getElementById('nav-bar').innerHTML += `<a onclick="openFromNav()" class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="icon: play"></a>`;
     });
 }
 
-function openNew() {
+function openFromNav() {
     let input = document.getElementById("path-input").value;
     readFolder(input);
 }
 
-function getPathDirs(myPath) {
-    document.getElementById('listed-dirs').innerHTML = `<ul id="display-dirs"></ul>`;
+function displayPathDirs(myPath) {
+    document.addEventListener('DOMContentLoaded',function () {
+        document.getElementById('listed-dirs').innerHTML = `<ul id="display-dirs"></ul>`;
 
-    let parsedPath = path.parse(myPath);
-    let dirs_links = [];
-    let dirs = parsedPath.dir.split(path.sep);
+        let parsedPath = path.parse(myPath);
+        let dirs_links = [];
+        let dirs = parsedPath.dir.split(path.sep);
 
-    for (let i = 0; i < dirs.length; i++) {
-        dirs_links.push(dirs.slice(0, i + 1).join(path.sep));
-    }
-
-    dirs = parsedPath.dir.split(path.sep).slice(1);
-    let root = parsedPath.root;
-
-    for (let i = 0; i < dirs.length; i++) {
-        let current_dir = root;
-        let current_link = root;
-
-        if (i !== 0) {
-            current_dir = dirs[i - 1];
-            current_link = dirs_links[i - 1];
+        for (let i = 0; i < dirs.length; i++) {
+            dirs_links.push(dirs.slice(0, i + 1).join(path.sep));
         }
 
-        document.getElementById('display-dirs').innerHTML += `<li class="uk-active"><a href=${current_link}>${current_dir}</a></li>`;
+        dirs = parsedPath.dir.split(path.sep).slice(1);
+        let root = parsedPath.root;
 
-        if (i !== dirs.length - 1)
-            document.getElementById('display-dirs').innerHTML += `<hr class="uk-margin-remove">`;
-    }
+        for (let i = 0; i < dirs.length; i++) {
+            let current_dir = root;
+            let current_link = root;
 
+            if (i !== 0) {
+                current_dir = dirs[i - 1];
+                current_link = dirs_links[i - 1];
+            }
+
+            document.getElementById('display-dirs').innerHTML += `<li class="uk-active"><a href=${current_link}>${current_dir}</a></li>`;
+
+            if (i !== dirs.length - 1)
+                document.getElementById('display-dirs').innerHTML += `<hr class="uk-margin-remove">`;
+        }
+    });
 }
