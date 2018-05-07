@@ -22,14 +22,17 @@
 
             readFolder(arguments[2]);
             getPathDirs(arguments[2]);
+            printCurrentPath();
         })();
     </script>
 </head>
 <body class="uk-flex uk-flex-column">
 <nav class="uk-navbar-container uk-padding-small uk-navbar-transparent uk-background-primary" uk-navbar>
-    <div class="uk-inline uk-width-expand">
+    <div id="nav-bar" class="uk-inline uk-width-expand">
         <a class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="icon: play"></a>
-        <input id="path-input" class="uk-input" type="text">
+        <script>
+            require('../renderer/renderer');
+        </script>
     </div>
 </nav>
 <section id="main-section" class="uk-flex uk-flex-row">

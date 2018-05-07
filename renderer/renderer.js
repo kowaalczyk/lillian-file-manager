@@ -31,10 +31,10 @@ function readFolder(path) {
                              * Add an ondblclick event to each item. With folders, call this same function (recursion) to read the contents of the folder. If its a file, call the openFile function to open the file with the default app.
                              *
                              */
-                            document.getElementById('display-files').innerHTML += `<div id=${theID} ondblclick="openFile(this.id)" class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/icon64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
+                            document.getElementById('display-files').innerHTML += `<div id=${theID} ondblclick="readFolder(this.id)" class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/icon64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
                         }
                         else {
-                            document.getElementById('display-files').innerHTML += `<div id=${theID} ondblclick="openFile(this.id)" class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/file64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
+                            document.getElementById('display-files').innerHTML += `<div id=${theID} ondblclick="readFolder(this.id)" class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/file64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
                             //document.getElementById('display-files').innerHTML += `<li id=${theID} ondblclick="openFile(this.id)"><img src="../img/file64.png" width="64" height="64">${file}</li>`;
                         }
                     }
@@ -46,8 +46,7 @@ function readFolder(path) {
 }
 
 function getPathDirs(path) {
-    document.getElementById('listed-dirs').innerHTML = `<h1>LOL</h1>`;
-    document.getElementById('listed-dirs').innerHTML += `<ul id="display-dirs"></ul>`;
+    document.getElementById('listed-dirs').innerHTML = `<ul id="display-dirs"></ul>`;
 
     let parsedPath = path.parse(path);
     let dirs_links = [];
@@ -77,7 +76,6 @@ function getPathDirs(path) {
 
 }
 
-//open the file with the default application
-function openFile(path) {
-    shell.openItem(path);
+function printCurrentPath() {
+    document.getElementById('nav-bar').innerHTML = `<input id="path-input" class="uk-input" type="text" value="Mickey">`;
 }
