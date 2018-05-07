@@ -73,9 +73,9 @@ function openFromNav() {
     displayAllPanels(input);
 }
 
-function displayTopPanel(path, clickable) {
+function displayTopPanel(path) {
     document.getElementById('nav-bar').innerHTML = `<input id="path-input" class="uk-input" type="text" value=${path}>`;
-    document.getElementById('nav-bar').innerHTML += `<a onclick="openFromNav()" class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="icon: play"></a>`;
+    document.getElementById('nav-bar').innerHTML += `<a onclick="openFromNav()" class="uk-form-icon uk-form-icon-flip" uk-icon="icon: play"></a>`;
 }
 
 function displayAllPanels(path) {

@@ -39,7 +39,11 @@
         // displayPathDirs(arguments[2]);
 
         let pathArg = arguments[2];
-        displayAllPanels(pathArg);
+        if (arguments !== '') {
+            displayAllPanels(pathArg);
+        } else {
+            displayTopPanel('');
+        }
     })();
 </script>
 </body>
