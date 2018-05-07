@@ -35,8 +35,11 @@
         let remote = require('electron').remote,
             arguments = remote.getGlobal('sharedObject').prop1;
 
-        readFolder(arguments[2]);
-        displayPathDirs(arguments[2]);
+        // readFolder(arguments[2]);
+        // displayPathDirs(arguments[2]);
+
+        let pathArg = arguments[2];
+        displayAllPanels(pathArg);
     })();
 </script>
 </body>

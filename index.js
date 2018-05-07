@@ -2,6 +2,8 @@
 Use object literal notation to create two objects
  */
 const {app,BrowserWindow}=require('electron');
+const electron = require('electron');
+
 /*
 Create a callback to handle the ready event.
  */

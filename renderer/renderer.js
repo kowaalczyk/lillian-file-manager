@@ -10,7 +10,7 @@ function handleError(err) {
     alert('There was an error reading the file!');
 }
 
-function readFolder(path) {
+function displayFolderContent(path) {
     fs.readdir(path, (err, files) => {
         'use strict';
 
@@ -32,7 +32,7 @@ function readFolder(path) {
                              * Add an ondblclick event to each item. With folders, call this same function (recursion) to read the contents of the folder. If its a file, call the openFile function to open the file with the default app.
                              *
                              */
-                            document.getElementById('display-files').innerHTML += `<div id=${theID} ondblclick="readFolder(this.id)" class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/icon64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
+                            document.getElementById('display-files').innerHTML += `<div id=${theID} ondblclick="displayAllPanels(this.id)" class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/icon64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
                         }
                         else {
                             document.getElementById('display-files').innerHTML += `<div class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/file64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
@@ -40,49 +40,46 @@ function readFolder(path) {
                         }
                     }
                 });
-
             }
         }
-
-        document.getElementById('nav-bar').innerHTML = `<input id="path-input" class="uk-input" type="text" value=${path}>`;
-        document.getElementById('nav-bar').innerHTML += `<a onclick="openFromNav()" class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="icon: play"></a>`;
     });
+}
+
+function displayPathDirs(myPath) {
+    document.getElementById('listed-dirs').innerHTML = `<ul id="display-dirs"></ul>`;
+
+    let path = require('path');
+    let parsedPath = path.parse(myPath);
+    let dirs = parsedPath.dir.split(path.sep);
+    let dirs_links = [];
+
+    let root = parsedPath.root;
+    dirs[0] = root;
+    dirs_links[0] = root;
+    document.getElementById('display-dirs').innerHTML += `<li class="uk-active"><a onclick="displayAllPanels('${root}')">${root}</a></li>`;
+
+    for (let i = 1; i < dirs.length; i++) {
+        document.getElementById('display-dirs').innerHTML += `<hr class="uk-margin-remove">`;
+
+        let new_link = dirs_links.slice(-1)[0] + dirs[i] + path.sep;
+        dirs_links.push(new_link);
+
+        document.getElementById('display-dirs').innerHTML += `<li class="uk-active"><a onclick="displayAllPanels('${dirs_links[i]}')">${dirs[i]}</a></li>`
+    }
 }
 
 function openFromNav() {
     let input = document.getElementById("path-input").value;
-    readFolder(input);
+    displayAllPanels(input);
 }
 
-function displayPathDirs(myPath) {
-    document.addEventListener('DOMContentLoaded',function () {
-        document.getElementById('listed-dirs').innerHTML = `<ul id="display-dirs"></ul>`;
+function displayTopPanel(path, clickable) {
+    document.getElementById('nav-bar').innerHTML = `<input id="path-input" class="uk-input" type="text" value=${path}>`;
+    document.getElementById('nav-bar').innerHTML += `<a onclick="openFromNav()" class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="icon: play"></a>`;
+}
 
-        let path = require('path');
-        let parsedPath = path.parse(myPath);
-        let dirs_links = [];
-        let dirs = parsedPath.dir.split(path.sep);
-
-        for (let i = 0; i < dirs.length; i++) {
-            dirs_links.push(dirs.slice(0, i + 1).join(path.sep));
-        }
-
-        dirs = parsedPath.dir.split(path.sep).slice(1);
-        let root = parsedPath.root;
-
-        for (let i = 0; i < dirs.length; i++) {
-            let current_dir = root;
-            let current_link = root;
-
-            if (i !== 0) {
-                current_dir = dirs[i - 1];
-                current_link = dirs_links[i] + '/';
-            }
-
-            document.getElementById('display-dirs').innerHTML += `<li class="uk-active"><a href=${current_link}>${current_dir}</a></li>`;
-
-            //if (i !== dirs.length - 1)
-                //document.getElementById('display-dirs').innerHTML += `<hr class="uk-margin-remove">`;
-        }
-    });
+function displayAllPanels(path) {
+    displayFolderContent(path);
+    displayPathDirs(path);
+    displayTopPanel(path);
 }
