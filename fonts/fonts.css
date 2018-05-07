@@ -1,0 +1,11 @@
+@font-face {
+    font-family: 'Comfortaa';
+    font-style: normal;
+    font-weight: 400;
+    src: url(Comfortaa_400_normal.eot); /* {{embedded-opentype-gf-url}} */
+    src: local('☺'),
+        url(Comfortaa_400_normal.eot?#iefix) format('embedded-opentype'), /* {{embedded-opentype-gf-url}} */
+        url(Comfortaa_400_normal.woff) format('woff'), /* http://fonts.gstatic.com/s/comfortaa/v12/1Ptsg8LJRfWJmhDAuUs4TYFs.woff */
+        url(Comfortaa_400_normal.ttf) format('truetype'), /* http://fonts.gstatic.com/s/comfortaa/v12/1Ptsg8LJRfWJmhDAuUs4TYFvL_KWxQ.ttf */
+        url(Comfortaa_400_normal.svg#Comfortaa_400_normal) format('svg'); /* http://fonts.gstatic.com/l/font?kit=1Ptsg8LJRfWJmhDAuUs4TYFt&skey=45c59603efbe20e8&v=v12#Comfortaa */
+}
