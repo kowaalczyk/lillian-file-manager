@@ -10,21 +10,22 @@ function handleError(err) {
     alert('There was an error reading the file!');
 }
 
-function displayFolderContent(path) {
-    fs.readdir(path, (err, files) => {
+function displayFolderContent(myPath) {
+    fs.readdir(myPath, (err, files) => {
         'use strict';
 
         if (err) handleError(err);
         else {
+            let path = require('path');
             //Dynamically add <ol> tags to the div
             document.getElementById('listed-files').innerHTML = `<ol id="display-files"></ol>`;
             for (let file of files) {
-                fs.stat(path + file, (err, stats) => {
+                fs.stat(myPath + file, (err, stats) => {
                     /**
                      *When you double click on a folder or file, we need to obtain the path and name so that we can use it to take action. The easiest way to obtain the path and name for each file and folder, is to store that information in the element itself, as an ID. this is possible since we cannot have two files with the same name in a folder. theID variable below is created by concatenating the path with file name and a / at the end. As indicated earlier, we must have the / at the end of the path.
                      *
                      */
-                    let theID = `${path}${file}/`;
+                    let theID = `${myPath}${file}` + path.sep;
                     if (err) handleError(err);
                     else {
                         if (stats.isDirectory()) {
@@ -33,10 +34,8 @@ function displayFolderContent(path) {
                              *
                              */
                             document.getElementById('display-files').innerHTML += `<div id=${theID} ondblclick="displayAllPanels(this.id)" class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/icon64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
-                        }
-                        else {
+                        } else {
                             document.getElementById('display-files').innerHTML += `<div class="uk-flex uk-flex-column uk-flex-middle uk-width-small"><img src="../img/file64.png" width="64" height="64"><span class="uk-text-truncate">${file}</span></div>`;
-                            //document.getElementById('display-files').innerHTML += `<li id=${theID} ondblclick="openFile(this.id)"><img src="../img/file64.png" width="64" height="64">${file}</li>`;
                         }
                     }
                 });
