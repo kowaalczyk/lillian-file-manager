@@ -34,8 +34,9 @@ ipcMain.on('request', (event, pathArg) => {
     event.sender.send('response', pathToJson(pathArg));
 });
 
-// console.log(pathToJson('/home/erhaven/Downloads/'));
-console.log(fs.readdirSync('/home/erhaven/Downloads'));
+// let testPath = '/home/erhaven/Test/ s a s d /test sas ds da';
+// console.log(pathToJson(testPath));
+// console.log(fs.readdirSync(testPath));
 
 function extractPathDirs(pathArg) {
     'use strict';
@@ -87,10 +88,13 @@ function pathToJson(pathArg) {
             let items = fs.readdirSync(pathArg);
             let filesNames = [];
             let dirsNames = [];
+            if (pathArg.slice(-1) !== path.sep) {
+                pathArg += path.sep;
+            }
 
             for (let item of items) {
                 let pathToItem = pathArg + item;
-                console.log(pathToItem);
+                // console.log(pathToItem);
                 let stats = fs.statSync(pathToItem);
 
                 if (stats.isDirectory()) {
