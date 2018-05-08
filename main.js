@@ -106,6 +106,8 @@ function pathToJson(pathArg) {
             };
 
             return jsonConcat(pathDirsJson, folderContentJson);
+        } else {
+            return errorHandler();
         }
 
     } catch (err) {
