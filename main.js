@@ -7,6 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const invalidJson = {valid:false};
 
+// Set to 3 for tests
+// Set to 2 for production
 const NUM_OF_ARGS = 3;
 
 let mainWindow = null;
@@ -20,15 +22,9 @@ app.on('ready', () => {
     mainWindow.loadURL(`file://${__dirname}/templates/index.html`);
 
     ipcMain.on('ready', (event) => {
-<<<<<<< HEAD
         if (process.argv.length === NUM_OF_ARGS) {
             event.sender.send('response', pathToJson(process.argv[NUM_OF_ARGS - 1]));
         } else if (process.argv.length !== NUM_OF_ARGS - 1) {
-=======
-        if (process.argv.length === 2) {
-            event.sender.send('response', pathToJson(process.argv[1]));
-        } else if (process.argv.length !== 1) {
->>>>>>> origin/master
             console.error('Wrong arguments!');
             mainWindow.close()
         }
