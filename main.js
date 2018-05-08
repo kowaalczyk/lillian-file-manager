@@ -154,16 +154,16 @@ function jsonConcat(json1, json2) {
 
 function pathToJson(pathArg) {
     'use strict';
+    let normPathArg = path.normalize(pathArg);
+    // LINUX:
+    // path.normalize('/foo/bar//baz/asdf/quux/..');
+    // Returns: '/foo/bar/baz/asdf'
+
+    // WINDOWS:
+    // path.normalize('C:\\temp\\\\foo\\bar\\..\\');
+    // Returns: 'C:\\temp\\foo\\'
+
     try {
-        let normPathArg = path.normalize(pathArg);
-        // LINUX:
-        // path.normalize('/foo/bar//baz/asdf/quux/..');
-        // Returns: '/foo/bar/baz/asdf'
-
-        // WINDOWS:
-        // path.normalize('C:\\temp\\\\foo\\bar\\..\\');
-        // Returns: 'C:\\temp\\foo\\'
-
         if (fs.existsSync(normPathArg)) {
             let items = fs.readdirSync(normPathArg);
             let filesNames = [];
@@ -176,13 +176,22 @@ function pathToJson(pathArg) {
             // normPathArg now always ends on path.sep ('/' or w/e windows has)
 
             for (let item of items) {
-                let pathToItem = normPathArg + item;
-                let stats = fs.statSync(pathToItem);
+                // let pathToItem = normPathArg + item;
+                let pathToItem = path.join(normPathArg, item);
 
-                if (stats.isDirectory()) {
-                    dirsNames.push(item);
-                } else {
-                    filesNames.push(item);
+                try {
+                    let stats = fs.statSync(pathToItem);
+
+                    if (stats.isDirectory()) {
+                        dirsNames.push(item);
+                    } else {
+                        filesNames.push(item);
+                    }
+                } catch (err) {
+                    // OPTION 1: do not display item when fs.stat throws error (permission error)
+
+                    // OPTION 2: display as file only when ext (extension) in path.parse(pathToItem) is non empty
+                    // (doesn't work for files without extension like Makefile)
                 }
             }
 
