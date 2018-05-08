@@ -121,7 +121,6 @@ function extractPathDirs(pathArg) {
 
     if (pathArg !== parsedPath.root) {
 
-
         if (os.platform() === 'linux') {
             console.log('DEBUGGING CHECK: we are on Linux');
 
@@ -156,19 +155,28 @@ function jsonConcat(json1, json2) {
 function pathToJson(pathArg) {
     'use strict';
     try {
-        if (fs.existsSync(pathArg)) {
-            let items = fs.readdirSync(pathArg);
+        let normPathArg = path.normalize(pathArg);
+        // LINUX:
+        // path.normalize('/foo/bar//baz/asdf/quux/..');
+        // Returns: '/foo/bar/baz/asdf'
+
+        // WINDOWS:
+        // path.normalize('C:\\temp\\\\foo\\bar\\..\\');
+        // Returns: 'C:\\temp\\foo\\'
+
+        if (fs.existsSync(normPathArg)) {
+            let items = fs.readdirSync(normPathArg);
             let filesNames = [];
             let dirsNames = [];
 
             // Make sure that at the end of a path there is / or \:
-            if (pathArg.slice(-1) !== path.sep) {
-                pathArg += path.sep;
+            if (normPathArg.slice(-1) !== path.sep) {
+                normPathArg += path.sep;
             }
-            // pathArg now always ends on path.sep ('/' or w/e windows has)
+            // normPathArg now always ends on path.sep ('/' or w/e windows has)
 
             for (let item of items) {
-                let pathToItem = pathArg + item;
+                let pathToItem = normPathArg + item;
                 let stats = fs.statSync(pathToItem);
 
                 if (stats.isDirectory()) {
@@ -178,8 +186,8 @@ function pathToJson(pathArg) {
                 }
             }
 
-            let pathDirsJson = extractPathDirs(pathArg);
-            pathDirsJson['path'] = pathArg;
+            let pathDirsJson = extractPathDirs(normPathArg);
+            pathDirsJson['path'] = normPathArg;
             let folderContentJson = {
                 filesNames:filesNames,
                 dirsNames:dirsNames,
