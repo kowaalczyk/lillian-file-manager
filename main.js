@@ -17,11 +17,11 @@ app.on('ready', () => {
     mainWindow.loadURL(`file://${__dirname}/templates/index.html`);
 
     ipcMain.on('ready', (event) => {
-        if (process.argv.length === 3) {
+        if (process.argv.length === 2) {
             event.sender.send('response', pathToJson(process.argv[2]));
-        } else if (process.argv.length !== 2) {
+        } else if (process.argv.length !== 1) {
             console.error('Wrong arguments!');
-            win.close()
+            mainWindow.close()
         }
     });
 
@@ -32,24 +32,29 @@ ipcMain.on('request', (event, pathArg) => {
     event.sender.send('response', pathToJson(pathArg));
 });
 
-let testPathLinux = '/home/erhaven/Test/ s a s d /test sas ds da';
+// let testPathLinux = '/home/erhaven/Test/ s a s d /test sas ds da';
 let testPathWind = 'C:\\Users\\kkowa\\Desktop\\lillian-win32-x64';
-// console.log(pathToJson(testPath));
-// console.log(fs.readdirSync(testPath));
+let testPathLinux = '/home/erhaven';
+// console.log(pathToJson(testPathLinux));
+// console.log(fs.readdirSync(testPathLinux));
 
 function extractPathDirs(pathArg) {
     'use strict';
-    let parsedPath = path.parse(pathArg);
-    let dividedPath = parsedPath.dir.split(path.sep);
+    let dividedPath = [];
     let parentsPaths = [];
+    if (pathArg !== path.sep) {
+        let parsedPath = path.parse(pathArg);
+        dividedPath = parsedPath.dir.split(path.sep);
 
-    let root = parsedPath.root;
-    dividedPath[0] = root;
-    parentsPaths[0] = root;
+        let root = parsedPath.root;
+        dividedPath[0] = root;
+        parentsPaths[0] = root;
 
-    for (let i = 1; i < dividedPath.length; i++) {
-        let new_link = parentsPaths.slice(-1)[0] + dividedPath[i] + path.sep;
-        parentsPaths.push(new_link);
+        for (let i = 1; i < dividedPath.length; i++) {
+            let new_link = parentsPaths.slice(-1)[0] + dividedPath[i] + path.sep;
+            // let new_link = path.join(parentsPaths.slice(-1)[0], dividedPath[i]);
+            parentsPaths.push(new_link);
+        }
     }
 
     return {dividedPath:dividedPath, parentPaths:parentsPaths}
