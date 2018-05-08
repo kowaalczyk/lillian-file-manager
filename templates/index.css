@@ -14,6 +14,10 @@ body, html {
     background-color: #E2D0D7 !important;
 }
 
+input {
+    border-color: ;
+}
+
 main {
     align-content: flex-start;
 }

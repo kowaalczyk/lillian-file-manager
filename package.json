@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "index": "electron . ~/"
+    "main": "electron . ~/"
   },
   "repository": {
     "type": "git",

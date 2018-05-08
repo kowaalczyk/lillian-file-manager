@@ -17,11 +17,9 @@ app.on('ready', () => {
     mainWindow.loadURL(`file://${__dirname}/templates/index.html`);
 
     ipcMain.on('ready', (event) => {
-        if (process.argv.length === 2) {
-            event.sender.send('response', {});
-        } else if (process.argv.length === 3) {
+        if (process.argv.length === 3) {
             event.sender.send('response', pathToJson(process.argv[2]));
-        } else {
+        } else if (process.argv.length !== 2) {
             console.error('Wrong arguments!');
             win.close()
         }
