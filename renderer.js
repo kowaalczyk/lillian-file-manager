@@ -8,7 +8,7 @@ function removeChildren(element) {
 
 function createObjectDiv(name, iconPath) {
     let div = document.createElement('div');
-    div.className = "uk-flex uk-flex-column uk-flex-middle uk-width-small";
+    div.className = "object uk-flex uk-flex-column uk-flex-middle uk-width-small";
 
     let img = document.createElement('img');
     img.src = iconPath;
@@ -25,17 +25,24 @@ function createObjectDiv(name, iconPath) {
     return div;
 }
 
-function renderLeftNav(directories) {
+function renderLeftNav(directories, parentPaths) {
     const leftNav = document.getElementById("left-nav");
     removeChildren(leftNav);
 
     let holder = document.createDocumentFragment();
-    for (let directory of directories) {
+    for (let i = 0; i < directories.length; i++) {
+        const directory = directories[i];
         let li = document.createElement('li');
         let a = document.createElement('a');
         a.className = "uk-link-text";
         a.textContent = directory;
         li.appendChild(a);
+
+        a.addEventListener("click", () => {
+            const path = parentPaths[i];
+            console.log(path);
+            sendRequest(path);
+        });
 
         holder.appendChild(li);
     }
@@ -43,18 +50,22 @@ function renderLeftNav(directories) {
     leftNav.appendChild(holder);
 }
 
-function renderMainSection(folders, files) {
+function renderMainSection(folders, files, currentPath) {
     const mainSection = document.getElementById("main-section");
     removeChildren(mainSection);
 
     let holder = document.createDocumentFragment();
     for (let folder of folders) {
-        let div = createObjectDiv(folder, "../icons/folder128.png");
+        let div = createObjectDiv(folder, "../icons/folder128.png", currentPath);
+        div.addEventListener("dblclick", () => {
+            const path = currentPath + folder;
+            sendRequest(path);
+        });
         holder.appendChild(div);
     }
 
     for (let file of files) {
-        let div = createObjectDiv(file, "../icons/file128.png");
+        let div = createObjectDiv(file, "../icons/file128.png", currentPath);
         holder.appendChild(div);
     }
 
@@ -62,13 +73,13 @@ function renderMainSection(folders, files) {
 }
 
 function renderResponse(response) {
-    const {path, filesNames, dirsNames, dividedPath} = response;
+    const {path, filesNames, dirsNames, dividedPath, parentPaths} = response;
 
     const pathInput = document.getElementById("path-input");
     pathInput.value = path;
 
-    renderLeftNav(dividedPath);
-    renderMainSection(dirsNames, filesNames);
+    renderLeftNav(dividedPath, parentPaths);
+    renderMainSection(dirsNames, filesNames, path);
 }
 
 function sendRequest(path) {
@@ -87,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             renderResponse(response);
         } else {
             // handle error
-            alert("Invalid path!");
+            alert("Cannot open directory.");
         }
     });
 
@@ -96,11 +107,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const pathButton = document.getElementById("path-button");
 
     pathButton.addEventListener("click", () => {
-        sendRequest(pathInput.value)
+        sendRequest(pathInput.value);
     });
 
     pathForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        sendRequest(pathInput.value)
+        sendRequest(pathInput.value);
     });
 });

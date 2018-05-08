@@ -14,10 +14,14 @@ body, html {
     background-color: #E2D0D7 !important;
 }
 
-input {
-    border-color: ;
+input.uk-input:focus {
+    border-color: #947280 !important;
 }
 
 main {
     align-content: flex-start;
+}
+
+.object {
+    cursor: pointer;
 }
