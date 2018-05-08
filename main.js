@@ -18,7 +18,7 @@ app.on('ready', () => {
 
     ipcMain.on('ready', (event) => {
         if (process.argv.length === 2) {
-            event.sender.send('response', pathToJson(process.argv[2]));
+            event.sender.send('response', pathToJson(process.argv[1]));
         } else if (process.argv.length !== 1) {
             console.error('Wrong arguments!');
             mainWindow.close()
