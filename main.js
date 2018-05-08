@@ -89,7 +89,13 @@ function getLinksLinux(dividedPath, root) {
 
 // I assume that there is something more than just root in the pathObject
 function splitWindows(pathObject) {
-    return pathObject.dir.split(path.sep);
+    let pathList = pathObject.dir.split(path.sep);
+
+    if (pathObject.dir === pathObject.root) {
+        pathList = pathList.slice(0, 1);
+    }
+
+    return pathList;
 }
 
 function getLinksWindows(dividedPath, root) {
@@ -115,6 +121,7 @@ function extractPathDirs(pathArg) {
 
     if (pathArg !== parsedPath.root) {
 
+
         if (os.platform() === 'linux') {
             console.log('DEBUGGING CHECK: we are on Linux');
 
@@ -128,6 +135,8 @@ function extractPathDirs(pathArg) {
         }
     }
 
+    console.log(dividedPath);
+    console.log(parentsPaths);
     return {dividedPath:dividedPath, parentPaths:parentsPaths}
 }
 
@@ -183,6 +192,7 @@ function pathToJson(pathArg) {
         }
 
     } catch (err) {
+        console.error(err);
         return errorHandler();
     }
 }
