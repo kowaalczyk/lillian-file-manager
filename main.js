@@ -34,7 +34,8 @@ ipcMain.on('request', (event, pathArg) => {
     event.sender.send('response', pathToJson(pathArg));
 });
 
-// let testPath = '/home/erhaven/Test/ s a s d /test sas ds da';
+let testPathLinux = '/home/erhaven/Test/ s a s d /test sas ds da';
+let testPathWind = 'C:\\Users\\kkowa\\Desktop\\lillian-win32-x64';
 // console.log(pathToJson(testPath));
 // console.log(fs.readdirSync(testPath));
 
@@ -88,9 +89,12 @@ function pathToJson(pathArg) {
             let items = fs.readdirSync(pathArg);
             let filesNames = [];
             let dirsNames = [];
+
             if (pathArg.slice(-1) !== path.sep) {
                 pathArg += path.sep;
             }
+
+            // pathArg now always ends on path.sep ('/' or w/e windows has)
 
             for (let item of items) {
                 let pathToItem = pathArg + item;
