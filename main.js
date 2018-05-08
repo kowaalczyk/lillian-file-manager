@@ -3,6 +3,7 @@
 const electron = require('electron');
 const {app, BrowserWindow, ipcMain} = electron;
 const fs = require('fs');
+const path = require('path');
 const invalidJson = {valid:false};
 
 let mainWindow = null;
@@ -33,11 +34,11 @@ ipcMain.on('request', (event, pathArg) => {
     event.sender.send('response', pathToJson(pathArg));
 });
 
-// console.log(pathToJson('/home/erhaven/Envs/'));
+// console.log(pathToJson('/home/erhaven/Downloads/'));
+console.log(fs.readdirSync('/home/erhaven/Downloads'));
 
 function extractPathDirs(pathArg) {
     'use strict';
-    let path = require('path');
     let parsedPath = path.parse(pathArg);
     let dividedPath = parsedPath.dir.split(path.sep);
     let parentsPaths = [];
@@ -88,7 +89,9 @@ function pathToJson(pathArg) {
             let dirsNames = [];
 
             for (let item of items) {
-                let stats = fs.statSync(pathArg);
+                let pathToItem = pathArg + item;
+                console.log(pathToItem);
+                let stats = fs.statSync(pathToItem);
 
                 if (stats.isDirectory()) {
                     dirsNames.push(item);
