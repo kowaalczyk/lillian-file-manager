@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "main": "electron .",
-    "deploy-win32": "electron-packager ./ lillian --arch=x64 --platform=win32 --out=build/ --ignore=build --overwrite",
+    "deploy-win32": "electron-packager ./ lillian --arch=x64 --platform=win32 --out=build/ --ignore=build --overwrite --icon=src/icons/folder128.ico",
     "deploy-linux": "electron-packager ./ lillian --arch=x64 --platform=linux --out=build/ --ignore=build --overwrite",
     "zip-win32": "cross-zip build/lillian-win32-x64 build/lillian-win32-x64.zip",
     "zip-linux": "cross-zip build/lillian-linux-x64 build/lillian-linux-x64.zip"

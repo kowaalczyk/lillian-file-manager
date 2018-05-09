@@ -5,22 +5,34 @@ const os = require('os');
 const {app, BrowserWindow, ipcMain} = electron;
 const fs = require('fs');
 const path = require('path');
-const invalidJson = {valid:false};
+const isDev = require('electron-is-dev');
 
-// Set to 3 for tests
-// Set to 2 for production
-const NUM_OF_ARGS = 3;
+
+const invalidJson = {valid: false};
+const NUM_OF_ARGS = isDev ? 3 : 2;  // in dev mode, electron offsets argument by 1
+
+// disable logging in production
+if (!isDev) {
+    console.log = function() {};
+}
+
 
 let mainWindow = null;
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600
+        icon: path.join(__dirname, 'src/icons/folder128.ico'),
+        width: 1200,
+        height: 800
     });
 
     mainWindow.loadURL(`file://${__dirname}/templates/index.html`);
 
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
+
+    // Parse command line arguments
     ipcMain.on('ready', (event) => {
         if (process.argv.length === NUM_OF_ARGS) {
             event.sender.send('response', pathToJson(process.argv[NUM_OF_ARGS - 1]));
@@ -30,39 +42,18 @@ app.on('ready', () => {
         }
     });
 
+    // Listen for async message from renderer process
+    ipcMain.on('request', (event, pathArg) => {
+        event.sender.send('response', pathToJson(pathArg));
+    });
 });
 
-// // Listen for async message from renderer process
-ipcMain.on('request', (event, pathArg) => {
-    event.sender.send('response', pathToJson(pathArg));
+app.on('window-all-closed', () => {
+    app.quit();
 });
 
-// Old implementation of extractPath:
-function extractPathDirsOld(pathArg) {
-    'use strict';
-    let dividedPath = [];
-    let parentsPaths = [];
-    if (pathArg !== path.sep) {
-        let parsedPath = path.parse(pathArg);
-        dividedPath = parsedPath.dir.split(path.sep);
 
-        let root = parsedPath.root;
-        dividedPath[0] = root;
-        parentsPaths[0] = root;
-
-        for (let i = 1; i < dividedPath.length; i++) {
-            let new_link = parentsPaths.slice(-1)[0] + dividedPath[i] + path.sep;
-            // let new_link = path.join(parentsPaths.slice(-1)[0], dividedPath[i]);
-            parentsPaths.push(new_link);
-        }
-    }
-
-    console.log(dividedPath);
-    console.log(parentsPaths);
-    return {dividedPath:dividedPath, parentPaths:parentsPaths}
-}
-
-// I assume that there is something more than just root in the pathObject
+// Assuming that there is something more than just root in the pathObject
 function splitLinux(pathObject) {
     let pathList = pathObject.dir.split(path.sep);
     pathList[0] = pathObject.root;
@@ -87,7 +78,7 @@ function getLinksLinux(dividedPath, root) {
     return parentsPaths;
 }
 
-// I assume that there is something more than just root in the pathObject
+// Assuming that there is something more than just root in the pathObject
 function splitWindows(pathObject) {
     let pathList = pathObject.dir.split(path.sep);
 
@@ -136,7 +127,7 @@ function extractPathDirs(pathArg) {
 
     console.log(dividedPath);
     console.log(parentsPaths);
-    return {dividedPath:dividedPath, parentPaths:parentsPaths}
+    return {dividedPath: dividedPath, parentPaths: parentsPaths}
 }
 
 function errorHandler(err) {
@@ -177,7 +168,6 @@ function pathToJson(pathArg) {
 
             for (let item of items) {
                 let pathToItem = normPathArg + item;
-                // let pathToItem = path.join(normPathArg, item);
 
                 try {
                     let stats = fs.statSync(pathToItem);
@@ -188,19 +178,16 @@ function pathToJson(pathArg) {
                         filesNames.push(item);
                     }
                 } catch (err) {
-                    // OPTION 1: do not display item when fs.stat throws error (permission error)
-
-                    // OPTION 2: display as file only when ext (extension) in path.parse(pathToItem) is non empty
-                    // (doesn't work for files without extension like Makefile)
+                    // do not display item when fs.stat throws error (permission error)
                 }
             }
 
             let pathDirsJson = extractPathDirs(normPathArg);
             pathDirsJson['path'] = normPathArg;
             let folderContentJson = {
-                filesNames:filesNames,
-                dirsNames:dirsNames,
-                valid:true
+                filesNames: filesNames,
+                dirsNames: dirsNames,
+                valid: true
             };
 
             return jsonConcat(pathDirsJson, folderContentJson);
