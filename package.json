@@ -5,7 +5,11 @@
   "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "main": "electron ."
+    "main": "electron .",
+    "deploy-win32": "electron-packager ./ lillian --arch=x64 --platform=win32 --out=build/ --ignore=build --overwrite",
+    "deploy-linux": "electron-packager ./ lillian --arch=x64 --platform=linux --out=build/ --ignore=build --overwrite",
+    "zip-win32": "cross-zip build/lillian-win32-x64 build/lillian-win32-x64.zip",
+    "zip-linux": "cross-zip build/lillian-linux-x64 build/lillian-linux-x64.zip"
   },
   "repository": {
     "type": "git",
@@ -18,7 +22,12 @@
   },
   "homepage": "https://github.com/kowaalczyk/lillian-file-manager#readme",
   "dependencies": {
+    "uikit": "^3.0.0-beta.42",
+    "electron-is-dev": "^0.3.0"
+  },
+  "devDependencies": {
+    "cross-zip-cli": "^1.0.0",
     "electron": "^2.0.0",
-    "uikit": "^3.0.0-beta.42"
+    "electron-packager": "^12.0.2"
   }
 }
