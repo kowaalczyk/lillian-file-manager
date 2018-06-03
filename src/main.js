@@ -85,14 +85,27 @@ function getAllDiscs() {
     return allDiscsArray;
 }
 
-function isLocal(rMsg) {
-    for(let i = 0; i < userData.local.length; i++) {
-        if (userData.local[i].alias == rMsg.alias) {
-            return true;
+function findLoc(alias) {
+    for (let locType of userData) {
+        for(let i = 0; i < userData[locType].length; i++) {
+            if (userData[locType][i]["alias"] === alias) {
+                return {"locType" : locType, "index" : i};
+            }
         }
     }
 
-    return false;
+    return null;
+}
+
+function isLocal(rMsg) {
+    let locInfo = findLoc(rMsg["alias"]);
+
+    if (locInfo) {
+        return (locInfo["locType"] === "local")
+    } else {
+        // location doesn't exist
+        return null;
+    }
 }
 
 function parseRemoteJsonChunk(arr, isNew=false) {
