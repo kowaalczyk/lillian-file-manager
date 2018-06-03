@@ -52,8 +52,14 @@ app.on('ready', () => {
     });
 
     // Listen for async message from renderer process
-    ipcMain.on('request', (event, pathArg) => {
-        event.sender.send('response', pathToJson(pathArg));
+    ipcMain.on('request', (event, rMsg) => {
+        // Old: event.sender.send('response', pathToJson(pathArg));
+        if (isLocal(rMsg)) {
+            event.sender.send('response', pathToJson(concatPath(rMsg)));
+        } else {
+            // TODO: Loop through responses from server
+            event.sender.send('response', parseRemoteJsonChunk());
+        }
     });
 });
 
@@ -61,40 +67,56 @@ app.on('window-all-closed', () => {
     app.quit();
 });
 
+function concatPath(rMsg) {
+    // TODO: Concatenate alias with path
+}
+
 function getAllDiscs() {
     let allDiscsArray = [];
 
-    for(let i = 0; i < userData["local"].length; i++) {
-        allDiscsArray.push(userData["local"][i]["alias"]);
+    for(let i = 0; i < userData.local.length; i++) {
+        allDiscsArray.push(userData.local[i].alias);
     }
 
-    for(let i = 0; i < userData["remote"].length; i++) {
-        allDiscsArray.push(userData["remote"][i]["alias"])
+    for(let i = 0; i < userData.remote.length; i++) {
+        allDiscsArray.push(userData.remote[i].alias)
     }
 
     return allDiscsArray;
 }
 
-function findLoc(alias) {
-    for (let locType of userData) {
-        for(let i = 0; i < userData[locType].length; i++) {
-            if (userData[locType][i]["alias"] === alias) {
-                return {"locType" : locType, "index" : i};
-            }
+function isLocal(rMsg) {
+    for(let i = 0; i < userData.local.length; i++) {
+        if (userData.local[i].alias == rMsg.alias) {
+            return true;
         }
     }
 
-    return null;
+    return false;
 }
 
-function isLocal(rMsg) {
-    let locInfo = findLoc(rMsg["alias"]);
+function parseRemoteJsonChunk(arr, isNew=false) {
+    if (arr[0].e) {
+        return {
+            valid: false,
+            error: arr[0].e
+        }
+    }
 
-    if (locInfo) {
-        return (locInfo["locType"] === "local")
-    } else {
-        // location doesn't exist
-        return null;
+    let files = arr.filter(item => (item.k === 'f')).map(f => ({
+        name: f.n,
+        type: 'file'
+    }));
+
+    let dirs = arr.filter(item => (item.k === 'd')).map(d => ({
+        name: f.n,
+        type: 'directory'
+    }));
+
+    return {
+        isNew,
+        parsedFiles: dirs.concat(files),
+        valid: true
     }
 }
 
