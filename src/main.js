@@ -17,6 +17,7 @@ if (!isDev) {
 }
 
 let mainWindow = null;
+let optionsWindow = null;
 let userData = null;
 
 app.on('ready', () => {
@@ -33,8 +34,6 @@ app.on('ready', () => {
     });
 
     userData = new UserData('./.userData');
-    console.log(userData._filePath);
-
 
     // Parse command line arguments
     ipcMain.on('ready', (event) => {
@@ -50,59 +49,80 @@ app.on('ready', () => {
         }
     });
 
-    // Listen for async message from renderer process
-    ipcMain.on('request', (event, rMsg) => {
-        // Old: event.sender.send('response', pathToJson(pathArg));
-        if (userData.isLocal('')) { // TODO rMsg['alias']
-            event.sender.send('response', ph.pathToJson(concatPath(rMsg)));
-        } else {
-            const locTypeAndIndex = userData.findLoc(rMsg.alias);
-            // TODO: Handle locTypeAndIndex being undefined !!!
-            const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
+    ipcMain.on('localRequest', (event, pathArg) => {
+        event.sender.send('response', ph.pathToJson(pathArg));
+    });
 
-            const postData = querystring.stringify({
-                l: locData.login,
-                p: locData.pass,
-                q: rMsg.path
-            });  // TODO: Make sure this is a query string, send as both qstring and POST body (json) to be sure its compliant with API
+    ipcMain.on('remoteRequest', (event, rMsg) => {
+        const locTypeAndIndex = userData.findLoc(rMsg.alias);
+        // TODO: Handle locTypeAndIndex being undefined !!!
+        const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
 
-            let responseFull = [];
+        const postData = querystring.stringify({
+            l: locData.login,
+            p: locData.pass,
+            q: rMsg.path
+        });  // TODO: Make sure this is a query string, send as both qstring and POST body (json) to be sure its compliant with API
 
-            http.request({
-                url: locData.url,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                content: JSON.stringify(postData)
-            }).then( res => {
-                res.on('data', (chunk) => {
-                    console.log(`BODY: ${chunk}`); // TODO: Extract valid json chunk
-                    responseFull = responseFull.concat(chunk);
-                });
-                res.on('end', () => {
-                    console.log('No more data in response.');
-                    // TODO: handle end event
-                });
-            }, err => {
-                console.log("Error: " + (err.message || err));
-                // TODO: Pass to renderer
+        let responseFull = [];
+
+        http.request({
+            url: locData.url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            content: JSON.stringify(postData)
+        }).then(res => {
+            res.on('data', (chunk) => {
+                console.log(`BODY: ${chunk}`); // TODO: Extract valid json chunk
+                responseFull = responseFull.concat(chunk);
             });
+            res.on('end', () => {
+                console.log('No more data in response.');
+                // TODO: handle end event
+            });
+        }, err => {
+            console.log("Error: " + (err.message || err));
+            // TODO: Pass to renderer
+        });
 
-            event.sender.send('response', parseRemoteJsonChunk(responseFull, true));
-            // TODO: Send chunks directly to renderer
-        }
+        event.sender.send('response', parseRemoteJsonChunk(responseFull, true));
+        // TODO: Send chunks directly to renderer
+    });
+
+    ipcMain.on('newWindowRequest', (event, arg) => {
+        optionsWindow = new BrowserWindow({
+            icon: path.join(__dirname, 'src/icons/folder128.ico'),
+            width: 1200,
+            height: 800
+        });
+
+        optionsWindow.loadURL(`file://${__dirname}/templates/config.html`);
+
+        optionsWindow.on('closed', () => {
+            event.sender.send('updateUserData', userData);
+            mainWindow = null;
+        });
+    });
+
+    ipcMain.on('addDisc', (event, aMsg) => {
+
+        // TODO: Add disc and send message
+    });
+
+    ipcMain.on('updateDisc', (event, aMsg) => {
+        // TODO: Update disc and send message
+    });
+
+    ipcMain.on('deleteDisc', (event, aMsg) => {
+        // TODO: Delete disc and send message
     });
 });
 
 app.on('window-all-closed', () => {
     app.quit();
 });
-
-// I assume that path in rMsg starts with / (or \)
-function concatPath(rMsg) {
-    return rMsg.alias.concat(rMsg.path);
-}
 
 // Not needed for now TODO: If needed in future, make sure to change userData which is now an instance of UserData (not an array)
 // function getAllDiscs() {
