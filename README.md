@@ -119,15 +119,17 @@ Main responds to requests for adding, updating and deleting using message 'actin
 }
 ```
 
-Main responds to remoteRequest and localRequest with message 'response'. This message contains file names, directory names, bool variabe informing if request was valid, path to requested directories, divided path to parent directories, absolute paths to parent directories. Example:
+Main responds to remoteRequest and localRequest with message 'response'. This message contains file names, directory names, bool variabe informing if request was valid, path to requested directories, divided path to parent directories, absolute paths to parent directories, isLocal and alias. Example:
 ```javascript
 {
-  dividedPath: [ '/' ],
-  parentPaths: [ '/' ],
-  path: '/home/',
-  filesNames: [],
-  dirsNames: [ 'kris' ],
-  valid: true
+  "isLocal" : "true",
+  "alias" : ""
+  "dividedPath" : [ '/' ],
+  "parentPaths" : [ '/' ],
+  "path" : "/home/",
+  "filesNames" : [],
+  "dirsNames" : [ 'kris' ],
+  "valid" : "true"
 }
 
 ```
