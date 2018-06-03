@@ -2,21 +2,22 @@
 
 const electron = require('electron');
 const path = require('path');
-const ph = require('./path-handling.js');
 const {app, BrowserWindow, ipcMain} = electron;
 const isDev = require('electron-is-dev');
-const jsonfile = require('jsonfile');
+
+const ph = require('./path-handling.js');
+const UserData = require('./user-data');
 
 const NUM_OF_ARGS = isDev ? 3 : 2;  // in dev mode, electron offsets argument by 1
 
 // disable logging in production
 if (!isDev) {
-    console.log = function() {};
+    console.log = function () {
+    };
 }
 
 let mainWindow = null;
 let userData = null;
-let userDataFile = './.userData';
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -31,13 +32,8 @@ app.on('ready', () => {
         mainWindow = null;
     });
 
-    jsonfile.readFile(userDataFile, function(err, obj) {
-        userData = obj;
-        // console.log(userData);
-        // for (var key in userData) {
-        //     console.log(key);
-        // }
-    });
+    userData = new UserData('./.userData');
+    console.log(userData._filePath);
 
 
     // Parse command line arguments
@@ -46,7 +42,7 @@ app.on('ready', () => {
             console.error('Wrong arguments!');
             mainWindow.close();
         } else {
-            event.sender.send('leftPanel', userData);
+            event.sender.send('leftPanel', userData.data());
 
             if (process.argv.length === NUM_OF_ARGS) {
                 event.sender.send('response', ph.pathToJson(process.argv[NUM_OF_ARGS - 1]));
@@ -57,11 +53,44 @@ app.on('ready', () => {
     // Listen for async message from renderer process
     ipcMain.on('request', (event, rMsg) => {
         // Old: event.sender.send('response', pathToJson(pathArg));
-        if (isLocal('')) { // TODO rMsg['alias']
+        if (userData.isLocal('')) { // TODO rMsg['alias']
             event.sender.send('response', ph.pathToJson(concatPath(rMsg)));
         } else {
-            // TODO: Loop through responses from server
-            event.sender.send('response', parseRemoteJsonChunk());
+            const locTypeAndIndex = userData.findLoc(rMsg.alias);
+            // TODO: Handle locTypeAndIndex being undefined !!!
+            const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
+
+            const postData = querystring.stringify({
+                l: locData.login,
+                p: locData.pass,
+                q: rMsg.path
+            });  // TODO: Make sure this is a query string, send as both qstring and POST body (json) to be sure its compliant with API
+
+            let responseFull = [];
+
+            http.request({
+                url: locData.url,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                content: JSON.stringify(postData)
+            }).then( res => {
+                res.on('data', (chunk) => {
+                    console.log(`BODY: ${chunk}`); // TODO: Extract valid json chunk
+                    responseFull = responseFull.concat(chunk);
+                });
+                res.on('end', () => {
+                    console.log('No more data in response.');
+                    // TODO: handle end event
+                });
+            }, err => {
+                console.log("Error: " + (err.message || err));
+                // TODO: Pass to renderer
+            });
+
+            event.sender.send('response', parseRemoteJsonChunk(responseFull, true));
+            // TODO: Send chunks directly to renderer
         }
     });
 });
@@ -75,85 +104,22 @@ function concatPath(rMsg) {
     return rMsg.alias.concat(rMsg.path);
 }
 
-// Not needed for now
-function getAllDiscs() {
-    let allDiscsArray = [];
+// Not needed for now TODO: If needed in future, make sure to change userData which is now an instance of UserData (not an array)
+// function getAllDiscs() {
+//     let allDiscsArray = [];
+//
+//     for (let i = 0; i < userData.local.length; i++) {
+//         allDiscsArray.push(userData.local[i].alias);
+//     }
+//
+//     for (let i = 0; i < userData.remote.length; i++) {
+//         allDiscsArray.push(userData.remote[i].alias)
+//     }
+//
+//     return allDiscsArray;
+// }
 
-    for(let i = 0; i < userData.local.length; i++) {
-        allDiscsArray.push(userData.local[i].alias);
-    }
-
-    for(let i = 0; i < userData.remote.length; i++) {
-        allDiscsArray.push(userData.remote[i].alias)
-    }
-
-    return allDiscsArray;
-}
-
-function findLoc(alias) {
-    for (let locType in userData) {
-        for(let i = 0; i < userData[locType].length; i++) {
-            if (userData[locType][i]['alias'] === alias) {
-                return {'locType' : locType, 'index' : i};
-            }
-        }
-    }
-
-    return null;
-}
-
-function isLocal(alias) {
-    let locInfo = findLoc(alias);
-
-    if (locInfo) {
-        return (locInfo['locType'] === 'local')
-    } else {
-        // location doesn't exist
-        return false;
-    }
-}
-
-// assumes that updatedLocation is a valid location json (w/ keys alias, path/url, ...)
-// todo test
-function updateUserData(locType, updatedLocation) {
-    let locData = findLoc(updatedLocation['alias']);
-
-    if (locData) {
-        // loc with a given alias already exists in the userData
-        let foundLocType = locData['locType'];
-        let foundLocIndex = locData['index'];
-
-        if (foundLocType !== locType) {
-            return {'valid' : false, 'msg' : 'Alias is already used.'};
-        } else {
-            // update existing location
-            userData[locType][foundLocIndex] = updatedLocation;
-            return {'valid' : true, 'msg' : 'Existing location updated.'};
-        }
-
-    } else {
-        // adding new location
-        userData[locType].push(updatedLocation);
-        return {'valid' : true, 'msg' : 'New location added.'};
-    }
-}
-
-// todo test
-function removeLocation(alias) {
-    let locData = findLoc(alias);
-
-    if (locDdata) {
-        // loc with a given alias already exists in the userData, remove it
-        let locType = locData['locType'];
-        let index = locData['index'];
-        userData[locType].splice(index, 1);
-        return {'valid' : true, 'msg' : 'Location has been removed.'};
-    } else {
-        return {'valid' : false, 'msg' : 'Location does not exist.'};
-    }
-}
-
-function parseRemoteJsonChunk(arr, isNew=false) {
+function parseRemoteJsonChunk(arr, isNew = false) {
     // TODO error handling, fast fix
     if (!arr || !arr[0] || !(arr[0].e)) {
         return null;
