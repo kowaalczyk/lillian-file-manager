@@ -132,6 +132,8 @@ Main responds to remoteRequest and localRequest with message 'response'. This me
 
 ```
 
+When options window is closed main sends message 'updateUserData' which contains whole userData after all changes.
+
 ## License  
 
 TODO  
