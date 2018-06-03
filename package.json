@@ -22,8 +22,9 @@
   },
   "homepage": "https://github.com/kowaalczyk/lillian-file-manager#readme",
   "dependencies": {
-    "uikit": "^3.0.0-beta.42",
-    "electron-is-dev": "^0.3.0"
+    "electron-is-dev": "^0.3.0",
+    "jsonfile": "^4.0.0",
+    "uikit": "^3.0.0-beta.42"
   },
   "devDependencies": {
     "cross-zip-cli": "^1.0.0",

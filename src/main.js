@@ -6,6 +6,7 @@ const {app, BrowserWindow, ipcMain} = electron;
 const fs = require('fs');
 const path = require('path');
 const isDev = require('electron-is-dev');
+const jsonfile = require('jsonfile')
 
 
 const invalidJson = {valid: false};
@@ -19,7 +20,7 @@ if (!isDev) {
 
 let mainWindow = null;
 let userData = null;
-let userDataFile = './.userdata';
+let userDataFile = './.userData';
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -34,7 +35,9 @@ app.on('ready', () => {
         mainWindow = null;
     });
 
-    userData = JSON.parse(userDataFile);
+    jsonfile.readFile(userDataFile, function(err, obj) {
+        userData = obj;
+    });
 
 
     // Parse command line arguments
