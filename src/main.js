@@ -6,7 +6,7 @@ const {app, BrowserWindow, ipcMain} = electron;
 const fs = require('fs');
 const path = require('path');
 const isDev = require('electron-is-dev');
-const jsonfile = require('jsonfile')
+const jsonfile = require('jsonfile');
 
 
 const invalidJson = {valid: false};
@@ -42,11 +42,11 @@ app.on('ready', () => {
 
     // Parse command line arguments
     ipcMain.on('ready', (event) => {
-        if (process.argv.length !== NUM_OF_ARGS - 1) {
+        if (process.argv.length < NUM_OF_ARGS - 1 || process.argv.length > NUM_OF_ARGS) {
             console.error('Wrong arguments!');
             mainWindow.close();
         } else {
-            event.sender.send('response', userData);
+            event.sender.send('leftPanel', userData);
 
             if (process.argv.length === NUM_OF_ARGS) {
                 event.sender.send('response', pathToJson(process.argv[NUM_OF_ARGS - 1]));
