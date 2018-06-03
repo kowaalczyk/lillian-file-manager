@@ -68,42 +68,49 @@ app.on('ready', () => {
 
     ipcMain.on('remoteRequest', (event, rMsg) => {
         const locTypeAndIndex = userData.findLoc(rMsg.alias);
-        // TODO: Handle locTypeAndIndex being undefined !!!
-        const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
+        if (locTypeAndIndex === null) {
+            const errorResponse = {
+                valid: false
+            };
 
-        const postData = querystring.stringify({
-            l: locData.login,
-            p: locData.pass,
-            q: rMsg.path
-        });  // TODO: Make sure this is a query string, send as both qstring and POST body (json) to be sure its compliant with API
+            event.sender.send('response', errorResponse);
+        } else {
+            const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
 
-        let responseFull = [];
+            const postData = querystring.stringify({
+                l: locData.login,
+                p: locData.pass,
+                q: rMsg.path
+            });  // TODO: Make sure this is a query string, send as both qstring and POST body (json) to be sure its compliant with API
 
-        http.request({
-            url: locData.url,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            content: JSON.stringify(postData)
-        }).then(res => {
-            res.on('data', (chunk) => {
-                console.log(`BODY: ${chunk}`); // TODO: Extract valid json chunk
-                responseFull = responseFull.concat(chunk);
+            let responseFull = [];
+
+            http.request({
+                url: locData.url,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                content: JSON.stringify(postData)
+            }).then(res => {
+                res.on('data', (chunk) => {
+                    console.log(`BODY: ${chunk}`); // TODO: Extract valid json chunk
+                    responseFull = responseFull.concat(chunk);
+                });
+                res.on('end', () => {
+                    console.log('No more data in response.');
+                    // TODO: handle end event
+                });
+            }, err => {
+                console.log("Error: " + (err.message || err));
+                // TODO: Pass to renderer
             });
-            res.on('end', () => {
-                console.log('No more data in response.');
-                // TODO: handle end event
-            });
-        }, err => {
-            console.log("Error: " + (err.message || err));
-            // TODO: Pass to renderer
-        });
 
 
-        event.sender.send('response', parseRemoteJsonChunk(responseFull, true));
-        // TODO: Send chunks directly to renderer
-        // TODO: In reply add isLocal and alias
+            event.sender.send('response', parseRemoteJsonChunk(responseFull, true));
+            // TODO: Send chunks directly to renderer
+            // TODO: In reply add isLocal and alias
+        }
     });
 
     ipcMain.on('newWindowRequest', (event, arg) => {

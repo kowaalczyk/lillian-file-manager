@@ -64,12 +64,10 @@ function extractPathDirs(pathArg) {
     if (pathArg !== parsedPath.root) {
 
         if (os.platform() === 'linux') {
-            console.log('DEBUGGING CHECK: we are on Linux');
 
             dividedPath = splitLinux(parsedPath);
             parentsPaths = getLinksLinux(dividedPath, parsedPath.root);
         } else {
-            console.log('DEBUGGING CHECK: we are on Windows');
 
             dividedPath = splitWindows(parsedPath);
             parentsPaths = getLinksWindows(dividedPath, parsedPath.root);
