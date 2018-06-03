@@ -1,24 +1,18 @@
 'use strict';
 
 const electron = require('electron');
-const os = require('os');
-const {app, BrowserWindow, ipcMain} = electron;
-const fs = require('fs');
 const path = require('path');
+const ph = require('./path-handling.js');
+const {app, BrowserWindow, ipcMain} = electron;
 const isDev = require('electron-is-dev');
-const http = require('http');
 const jsonfile = require('jsonfile');
 
-
-const invalidJson = {valid: false};
 const NUM_OF_ARGS = isDev ? 3 : 2;  // in dev mode, electron offsets argument by 1
 
 // disable logging in production
 if (!isDev) {
-    console.log = function () {
-    };
+    console.log = function() {};
 }
-
 
 let mainWindow = null;
 let userData = null;
@@ -39,6 +33,10 @@ app.on('ready', () => {
 
     jsonfile.readFile(userDataFile, function(err, obj) {
         userData = obj;
+        // console.log(userData);
+        // for (var key in userData) {
+        //     console.log(key);
+        // }
     });
 
 
@@ -51,7 +49,7 @@ app.on('ready', () => {
             event.sender.send('leftPanel', userData);
 
             if (process.argv.length === NUM_OF_ARGS) {
-                event.sender.send('response', pathToJson(process.argv[NUM_OF_ARGS - 1]));
+                event.sender.send('response', ph.pathToJson(process.argv[NUM_OF_ARGS - 1]));
             }
         }
     });
@@ -59,49 +57,11 @@ app.on('ready', () => {
     // Listen for async message from renderer process
     ipcMain.on('request', (event, rMsg) => {
         // Old: event.sender.send('response', pathToJson(pathArg));
-
-        // send request to API
-        if (isLocal(rMsg)) {
-            event.sender.send('response', pathToJson(concatPath(rMsg)));
+        if (isLocal('')) { // TODO rMsg['alias']
+            event.sender.send('response', ph.pathToJson(concatPath(rMsg)));
         } else {
-            if (isLocal(rMsg)) {
-                // TODO: Send some error to renderer and return from this function
-            }
-
-            const {locType, locDataIndex} = findLoc(rMsg.alias);
-            const locData = userData[locDataIndex];
-
-            const postData = querystring.stringify({
-                l: locData.login,
-                p: locData.pass,
-                q: rMsg.path
-            });  // TODO: Make sure this is a query string, send as both qstring and POST body (json) to be sure its compliant with API
-
-            let responseFull = [];
-
-            http.request({
-                url: locData.url,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                content: JSON.stringify(postData)
-            }).then( res => {
-                res.on('data', (chunk) => {
-                    console.log(`BODY: ${chunk}`); // TODO: Extract valid json chunk
-                    responseFull = responseFull.concat(chunk);
-                });
-                res.on('end', () => {
-                    console.log('No more data in response.');
-                    // TODO: handle end event
-                });
-            }, err => {
-                console.log("Error: " + (err.message || err));
-                // TODO: Pass to renderer
-            });
-
-            event.sender.send('response', parseRemoteJsonChunk(responseFull, true));
-            // TODO: Send chunks directly to renderer
+            // TODO: Loop through responses from server
+            event.sender.send('response', parseRemoteJsonChunk());
         }
     });
 });
@@ -119,38 +79,69 @@ function concatPath(rMsg) {
 function getAllDiscs() {
     let allDiscsArray = [];
 
-    for (let i = 0; i < userData.local.length; i++) {
+    for(let i = 0; i < userData.local.length; i++) {
         allDiscsArray.push(userData.local[i].alias);
     }
 
-    for (let i = 0; i < userData.remote.length; i++) {
+    for(let i = 0; i < userData.remote.length; i++) {
         allDiscsArray.push(userData.remote[i].alias)
     }
 
     return allDiscsArray;
 }
 
-function isLocal(rMsg) {
-    for(let i = 0; i < userData.local.length; i++) {
-        if (userData.local[i].alias === rMsg.alias) {
-            return true;
-        }
-    }
-    return false;
-}
-
 function findLoc(alias) {
-    for (let locType of userData) {
-        for (let i = 0; i < userData[locType].length; i++) {
-            if (userData[locType][i]["alias"] === alias) {
-                return {"locType": locType, "index": i};
+    for (let locType in userData) {
+        for(let i = 0; i < userData[locType].length; i++) {
+            if (userData[locType][i]['alias'] === alias) {
+                return {'locType' : locType, 'index' : i};
             }
         }
     }
-    return false;
+
+    return null;
 }
 
-function parseRemoteJsonChunk(arr, isNew = false) {
+function isLocal(alias) {
+    let locInfo = findLoc(alias);
+
+    if (locInfo) {
+        return (locInfo['locType'] === 'local')
+    } else {
+        // location doesn't exist
+        return false;
+    }
+}
+
+function updateUserData(locType, updatedLocation) {
+    let locData = findLoc(updatedLocation['alias']);
+
+    if (locData) {
+        // loc with a given alias already exists in the userData
+        let foundLocType = locData['locType'];
+        let foundLocIndex = locData['index'];
+
+        if (foundLocType !== locType) {
+            return {'valid' : false, 'msg' : 'Alias is already used.'}
+        } else {
+            // update existing location
+            userData[locType][foundLocIndex] = updatedLocation;
+            return {'valid' : true, 'msg' : 'Existing location updated.'}
+        }
+
+    } else {
+        // adding new location
+        userData[locType].push(updatedLocation)
+        return {'valid' : true, 'msg' : 'New location added.'}
+    }
+}
+
+function parseRemoteJsonChunk(arr, isNew=false) {
+    // TODO error handling, fast fix
+    if (!arr || !arr[0] || !(arr[0].e)) {
+        return null;
+    }
+
     if (arr[0].e) {
         return {
             valid: false,
@@ -172,153 +163,5 @@ function parseRemoteJsonChunk(arr, isNew = false) {
         isNew,
         parsedFiles: dirs.concat(files),
         valid: true
-    }
-}
-
-// Assuming that there is something more than just root in the pathObject
-function splitLinux(pathObject) {
-    let pathList = pathObject.dir.split(path.sep);
-    pathList[0] = pathObject.root;
-
-    // In case '/home' dir is '/' and split returns ['', '']
-    if (pathObject.dir === pathObject.root) {
-        pathList = pathList.slice(0, 1);
-    }
-
-    return pathList;
-}
-
-function getLinksLinux(dividedPath, root) {
-    let parentsPaths = [root];
-
-    for (let i = 1; i < dividedPath.length; i++) {
-
-        let new_link = parentsPaths[parentsPaths.length - 1] + dividedPath[i] + path.sep;
-        parentsPaths.push(new_link);
-    }
-
-    return parentsPaths;
-}
-
-// Assuming that there is something more than just root in the pathObject
-function splitWindows(pathObject) {
-    let pathList = pathObject.dir.split(path.sep);
-
-    if (pathObject.dir === pathObject.root) {
-        pathList = pathList.slice(0, 1);
-    }
-
-    return pathList;
-}
-
-function getLinksWindows(dividedPath, root) {
-    let parentsPaths = [root];
-
-    for (let i = 1; i < dividedPath.length; i++) {
-
-        let new_link = parentsPaths[parentsPaths.length - 1] + dividedPath[i] + path.sep;
-        parentsPaths.push(new_link);
-    }
-
-    return parentsPaths;
-}
-
-function extractPathDirs(pathArg) {
-    'use strict';
-
-    // Default for case of root dir
-    let dividedPath = [];
-    let parentsPaths = [];
-
-    let parsedPath = path.parse(pathArg);
-
-    if (pathArg !== parsedPath.root) {
-
-        if (os.platform() === 'linux') {
-            console.log('DEBUGGING CHECK: we are on Linux');
-
-            dividedPath = splitLinux(parsedPath);
-            parentsPaths = getLinksLinux(dividedPath, parsedPath.root);
-        } else {
-            console.log('DEBUGGING CHECK: we are on Windows');
-
-            dividedPath = splitWindows(parsedPath);
-            parentsPaths = getLinksWindows(dividedPath, parsedPath.root);
-        }
-    }
-
-    console.log(dividedPath);
-    console.log(parentsPaths);
-    return {dividedPath: dividedPath, parentPaths: parentsPaths}
-}
-
-function errorHandler(err) {
-    console.error('ERROR: ' + err);
-    return invalidJson;
-}
-
-function jsonConcat(json1, json2) {
-    for (let key in json2) {
-        json1[key] = json2[key];
-    }
-
-    return json1;
-}
-
-function pathToJson(pathArg) {
-    'use strict';
-    try {
-        let normPathArg = path.normalize(pathArg);
-        // LINUX:
-        // path.normalize('/foo/bar//baz/asdf/quux/..');
-        // Returns: '/foo/bar/baz/asdf'
-
-        // WINDOWS:
-        // path.normalize('C:\\temp\\\\foo\\bar\\..\\');
-        // Returns: 'C:\\temp\\foo\\'
-
-        if (fs.existsSync(normPathArg)) {
-            let items = fs.readdirSync(normPathArg);
-            let filesNames = [];
-            let dirsNames = [];
-
-            // Make sure that at the end of a path there is / or \:
-            if (normPathArg.slice(-1) !== path.sep) {
-                normPathArg += path.sep;
-            }
-            // normPathArg now always ends on path.sep ('/' or w/e windows has)
-
-            for (let item of items) {
-                let pathToItem = normPathArg + item;
-
-                try {
-                    let stats = fs.statSync(pathToItem);
-
-                    if (stats.isDirectory()) {
-                        dirsNames.push(item);
-                    } else {
-                        filesNames.push(item);
-                    }
-                } catch (err) {
-                    // do not display item when fs.stat throws error (permission error)
-                }
-            }
-
-            let pathDirsJson = extractPathDirs(normPathArg);
-            pathDirsJson['path'] = normPathArg;
-            let folderContentJson = {
-                filesNames: filesNames,
-                dirsNames: dirsNames,
-                valid: true
-            };
-
-            return jsonConcat(pathDirsJson, folderContentJson);
-        } else {
-            return errorHandler();
-        }
-
-    } catch (err) {
-        console.error(err);
-        return errorHandler();
     }
 }
