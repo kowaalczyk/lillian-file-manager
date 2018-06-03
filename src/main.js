@@ -111,7 +111,7 @@ app.on('ready', () => {
         optionsWindow.loadURL(`file://${__dirname}/templates/config.html`);
 
         optionsWindow.on('closed', () => {
-            event.sender.send('updateUserData', userData);
+            event.sender.send('updateUserData', userData.data());
             mainWindow = null;
         });
     });
@@ -126,6 +126,10 @@ app.on('ready', () => {
 
     ipcMain.on('deleteDisc', (event, aMsg) => {
         event.sender.send('actionResult', userData.removeLocation(aMsg));
+    });
+
+    ipcMain.on('userConfig', (event, arg) => {
+        event.sender.send('userConfig', userData.data());
     });
 });
 
