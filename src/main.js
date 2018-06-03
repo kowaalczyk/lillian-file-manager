@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const isDev = require('electron-is-dev');
 const jsonfile = require('jsonfile')
+const http = require('http');
 
 
 const invalidJson = {valid: false};
@@ -14,7 +15,8 @@ const NUM_OF_ARGS = isDev ? 3 : 2;  // in dev mode, electron offsets argument by
 
 // disable logging in production
 if (!isDev) {
-    console.log = function() {};
+    console.log = function () {
+    };
 }
 
 
@@ -57,11 +59,49 @@ app.on('ready', () => {
     // Listen for async message from renderer process
     ipcMain.on('request', (event, rMsg) => {
         // Old: event.sender.send('response', pathToJson(pathArg));
+
+        // send request to API
         if (isLocal(rMsg)) {
             event.sender.send('response', pathToJson(concatPath(rMsg)));
         } else {
-            // TODO: Loop through responses from server
-            event.sender.send('response', parseRemoteJsonChunk());
+            if (isLocal(rMsg)) {
+                // TODO: Send some error to renderer and return from this function
+            }
+
+            const {locType, locDataIndex} = findLoc(rMsg.alias);
+            const locData = userData[locDataIndex];
+
+            const postData = querystring.stringify({
+                l: locData.login,
+                p: locData.pass,
+                q: rMsg.path
+            });  // TODO: Make sure this is a query string, send as both qstring and POST body (json) to be sure its compliant with API
+
+            let responseFull = [];
+
+            http.request({
+                url: locData.url,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                content: JSON.stringify(postData)
+            }).then( res => {
+                res.on('data', (chunk) => {
+                    console.log(`BODY: ${chunk}`); // TODO: Extract valid json chunk
+                    responseFull = responseFull.concat(chunk);
+                });
+                res.on('end', () => {
+                    console.log('No more data in response.');
+                    // TODO: handle end event
+                });
+            }, err => {
+                console.log("Error: " + (err.message || err));
+                // TODO: Pass to renderer
+            });
+
+            event.sender.send('response', parseRemoteJsonChunk(responseFull, true));
+            // TODO: Send chunks directly to renderer
         }
     });
 });
@@ -79,11 +119,11 @@ function concatPath(rMsg) {
 function getAllDiscs() {
     let allDiscsArray = [];
 
-    for(let i = 0; i < userData.local.length; i++) {
+    for (let i = 0; i < userData.local.length; i++) {
         allDiscsArray.push(userData.local[i].alias);
     }
 
-    for(let i = 0; i < userData.remote.length; i++) {
+    for (let i = 0; i < userData.remote.length; i++) {
         allDiscsArray.push(userData.remote[i].alias)
     }
 
@@ -96,11 +136,21 @@ function isLocal(rMsg) {
             return true;
         }
     }
-
     return false;
 }
 
-function parseRemoteJsonChunk(arr, isNew=false) {
+function findLoc(alias) {
+    for (let locType of userData) {
+        for (let i = 0; i < userData[locType].length; i++) {
+            if (userData[locType][i]["alias"] === alias) {
+                return {"locType": locType, "index": i};
+            }
+        }
+    }
+    return false;
+}
+
+function parseRemoteJsonChunk(arr, isNew = false) {
     if (arr[0].e) {
         return {
             valid: false,
@@ -272,4 +322,3 @@ function pathToJson(pathArg) {
         return errorHandler();
     }
 }
-
