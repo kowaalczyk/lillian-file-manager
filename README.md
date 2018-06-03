@@ -111,7 +111,7 @@ Renderer requests for deleting location using message 'deleteDisc'. This message
 "Docs"
 ```
 
-Main responds to requests for adding, updating and deleting using message 'actinoResult'. This message contains bool variabe informing if requested action was performed and message about action. Example:
+Main responds to requests for adding, updating and deleting using message 'actionResult'. This message contains bool variabe informing if requested action was performed and message about action. Example:
 ```javascript
 {
   "valid" : "false",

@@ -44,13 +44,21 @@ app.on('ready', () => {
             event.sender.send('leftPanel', userData.data());
 
             if (process.argv.length === NUM_OF_ARGS) {
-                event.sender.send('response', ph.pathToJson(process.argv[NUM_OF_ARGS - 1]));
+                let replyMsg = ph.pathToJson(process.argv[NUM_OF_ARGS - 1]);
+                replyMsg["isLocal"] = true;
+                replyMsg["alias"] = "";
+
+                event.sender.send('response', replyMsg);
             }
         }
     });
 
     ipcMain.on('localRequest', (event, pathArg) => {
-        event.sender.send('response', ph.pathToJson(pathArg));
+        let replyMsg = ph.pathToJson(pathArg);
+        replyMsg["isLocal"] = true;
+        replyMsg["alias"] = "";
+
+        event.sender.send('response', replyMsg);
     });
 
     ipcMain.on('remoteRequest', (event, rMsg) => {
@@ -87,8 +95,10 @@ app.on('ready', () => {
             // TODO: Pass to renderer
         });
 
+
         event.sender.send('response', parseRemoteJsonChunk(responseFull, true));
         // TODO: Send chunks directly to renderer
+        // TODO: In reply add isLocal and alias
     });
 
     ipcMain.on('newWindowRequest', (event, arg) => {
@@ -107,16 +117,15 @@ app.on('ready', () => {
     });
 
     ipcMain.on('addDisc', (event, aMsg) => {
-
-        // TODO: Add disc and send message
+        event.sender.send('actionResult', userData.createLocation(aMsg.type, aMsg.locationData));
     });
 
     ipcMain.on('updateDisc', (event, aMsg) => {
-        // TODO: Update disc and send message
+        event.sender.send('actionResult', userData.updateUserData(aMsg.locationData, aMsg.oldAlias));
     });
 
     ipcMain.on('deleteDisc', (event, aMsg) => {
-        // TODO: Delete disc and send message
+        event.sender.send('actionResult', userData.removeLocation(aMsg));
     });
 });
 
