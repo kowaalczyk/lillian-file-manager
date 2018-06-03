@@ -5,6 +5,9 @@ const path = require('path');
 const {app, BrowserWindow, ipcMain} = electron;
 const isDev = require('electron-is-dev');
 
+const http = require('http');
+const querystring = require('querystring');
+
 const ph = require('./path-handling.js');
 const UserData = require('./user-data');
 
@@ -22,9 +25,11 @@ let userData = null;
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
-        icon: path.join(__dirname, 'src/icons/folder128.ico'),
+        icon: path.join(__dirname, 'icons/folder128.png'),
         width: 1200,
-        height: 800
+        height: 800,
+        minWidth: 600,
+        minHeight: 400
     });
 
     mainWindow.loadURL(`file://${__dirname}/templates/index.html`);

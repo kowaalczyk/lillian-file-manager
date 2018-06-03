@@ -12,8 +12,8 @@ function createObjectDiv(name, iconPath) {
 
     let img = document.createElement('img');
     img.src = iconPath;
-    img.height = 128;
-    img.width = 128;
+    img.height = 64;
+    img.width = 64;
     div.appendChild(img);
 
     let caption = document.createElement('div');
@@ -25,29 +25,60 @@ function createObjectDiv(name, iconPath) {
     return div;
 }
 
-function renderLeftNav(directories, parentPaths) {
-    const leftNav = document.getElementById("left-nav");
-    removeChildren(leftNav);
+function renderPanelLocal(names, paths, panelId) {
+    const pathNav = document.getElementById(panelId);
+    removeChildren(pathNav);
 
     let holder = document.createDocumentFragment();
-    for (let i = 0; i < directories.length; i++) {
-        const directory = directories[i];
+    for (let i = 0; i < names.length; i++) {
+        // <li><a class="uk-link-text">directory</a></li>
+        const name = names[i];
         let li = document.createElement('li');
         let a = document.createElement('a');
         a.className = "uk-link-text";
-        a.textContent = directory;
+        a.textContent = name;
         li.appendChild(a);
 
         a.addEventListener("click", () => {
-            const path = parentPaths[i];
+            const path = paths[i];
             console.log(path);
-            sendRequest(path);
+            sendLocalRequest(path);
         });
 
         holder.appendChild(li);
     }
 
-    leftNav.appendChild(holder);
+    pathNav.appendChild(holder);
+}
+
+function renderPanelRemote(names, paths, panelId) {
+    const pathNav = document.getElementById(panelId);
+    removeChildren(pathNav);
+
+    let holder = document.createDocumentFragment();
+    for (let i = 0; i < names.length; i++) {
+        // <li><a class="uk-link-text">directory</a></li>
+        const name = names[i];
+        let li = document.createElement('li');
+        let a = document.createElement('a');
+        a.className = "uk-link-text";
+        a.textContent = name;
+        li.appendChild(a);
+
+        a.addEventListener("click", () => {
+            const path = paths[i];
+            sendRemoteRequest(name, path);
+        });
+
+        holder.appendChild(li);
+    }
+
+    pathNav.appendChild(holder);
+}
+
+function renderLocationLabel(name) {
+    const label = document.getElementById("location-label");
+    label.textContent = name;
 }
 
 function renderMainSection(folders, files, currentPath) {
@@ -59,7 +90,7 @@ function renderMainSection(folders, files, currentPath) {
         let div = createObjectDiv(folder, "../icons/folder128.png", currentPath);
         div.addEventListener("dblclick", () => {
             const path = currentPath + folder;
-            sendRequest(path);
+            sendLocalRequest(path);
         });
         holder.appendChild(div);
     }
@@ -72,18 +103,59 @@ function renderMainSection(folders, files, currentPath) {
     mainSection.appendChild(holder);
 }
 
+function showError(message) {
+    const errorIcon = document.getElementById("error-icon");
+    errorIcon.hidden = false;
+
+    const errorMessage = document.getElementById("error-message");
+    errorMessage.textContent = message;
+}
+
+function hideError() {
+    const errorIcon = document.getElementById("error-icon");
+    errorIcon.hidden = true;
+
+    const errorMessage = document.getElementById("error-message");
+    errorMessage.textContent = "\u200b";
+}
+
+function showSpinner() {
+    const spinner = document.getElementById("spinner");
+    spinner.style.visibility = "visible";
+}
+
+
+function hideSpinner() {
+    const spinner = document.getElementById("spinner");
+    spinner.style.visibility = "hidden";
+}
+
 function renderResponse(response) {
-    const {path, filesNames, dirsNames, dividedPath, parentPaths} = response;
+    const {path, filesNames, dirsNames, dividedPath, parentPaths, isLocal, alias} = response;
 
     const pathInput = document.getElementById("path-input");
     pathInput.value = path;
 
-    renderLeftNav(dividedPath, parentPaths);
+    renderLocationLabel(isLocal ? 'Local' : alias);
+    renderPanelLocal(dividedPath, parentPaths, "path-nav");
     renderMainSection(dirsNames, filesNames, path);
 }
 
-function sendRequest(path) {
-    ipcRenderer.send('request', path);
+function sendLocalRequest(path) {
+    showSpinner();
+    ipcRenderer.send('localRequest', path);
+}
+
+function sendRemoteRequest(alias, path) {
+    showSpinner();
+    ipcRenderer.send('remoteRequest', {
+        alias: alias,
+        path: path
+    })
+}
+
+function sendWindowRequest() {
+    ipcRenderer.send('newWindowRequest');
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -95,11 +167,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const {valid} = response;
 
         if (valid) {
+            hideError();
             renderResponse(response);
         } else {
             // handle error
-            alert("Cannot open directory.");
+            showError("Cannot open directory");
         }
+
+        hideSpinner();
+    });
+
+    ipcRenderer.on('leftPanel', (event, response) => {
+        const {local, remote} = response;
+        renderPanelLocal(local.map(object => object.alias), local.map(object => object.path), 'local-nav');
+        renderPanelRemote(remote.map(object => object.alias), remote.map(object => object.path), 'remote-nav');
     });
 
     const pathForm = document.getElementById("path-form");
@@ -107,11 +188,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const pathButton = document.getElementById("path-button");
 
     pathButton.addEventListener("click", () => {
-        sendRequest(pathInput.value);
+        sendLocalRequest(pathInput.value);
     });
 
     pathForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        sendRequest(pathInput.value);
+        sendLocalRequest(pathInput.value);
+    });
+
+    const configButton = document.getElementById("config-button");
+    configButton.addEventListener("click", () => {
+        console.log('open window');
+        sendWindowRequest();
     });
 });

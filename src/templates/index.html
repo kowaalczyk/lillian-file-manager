@@ -5,33 +5,75 @@
     <title>Lillian</title>
 
     <!-- UIkit CSS -->
-    <link rel="stylesheet" href="../../node_modules/uikit/dist/css/uikit.min.css" />
+    <link rel="stylesheet" href="../../node_modules/uikit/dist/css/uikit.min.css"/>
 
     <!-- UIkit JS -->
     <script src="../../node_modules/uikit/dist/js/uikit.min.js"></script>
     <script src="../../node_modules/uikit/dist/js/uikit-icons.min.js"></script>
 
     <!-- own CSS -->
-    <link rel="stylesheet" href="../fonts/fonts.css" />
-    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="../fonts/fonts.css"/>
+    <link rel="stylesheet" href="index.css"/>
 
     <!-- renderer -->
     <script src="../renderer.js"></script>
 </head>
 <body class="uk-flex uk-flex-column">
-    <header class="uk-navbar-container uk-padding-small uk-background-primary" uk-navbar="">
-        <form id="path-form" class="uk-inline uk-width-expand uk-text-large">
-            <a id="path-button" class="uk-form-icon uk-form-icon-flip" uk-icon="icon: forward"></a>
+<header class="uk-navbar-container uk-padding-small uk-background-primary" uk-navbar="">
+    <div class="uk-navbar-left uk-padding-small uk-padding-remove-left uk-padding-remove-vertical">
+        <a id="config-button" uk-icon="icon: cog; ratio: 1.5"></a>
+    </div>
+    <form id="path-form" class="uk-inline uk-flex uk-width-expand">
+        <div id="location-box" class="uk-background-secondary uk-text-bottom uk-flex uk-flex-middle uk-padding uk-padding-remove-vertical">
+            <label id="location-label" class="uk-display-block">Local</label>
+        </div>
+        <div class="uk-width-expand">
+            <a id="path-button" class="uk-form-icon uk-form-icon-flip" uk-icon="icon: forward; ratio: 1.5"></a>
             <input id="path-input" class="uk-input" title="path" value="">
-        </form>
-    </header>
-    <section class="uk-flex-1 uk-flex">
-        <aside class="uk-padding uk-width-medium uk-flex-stretch uk-background-secondary uk-overflow-auto">
-            <ul id="left-nav" class="uk-nav uk-text-large">
-            </ul>
-        </aside>
-        <main id="main-section" class="uk-width-expand uk-overflow-auto uk-text-center uk-padding uk-flex uk-flex-top uk-flex-left uk-grid-small" uk-grid="">
-        </main>
-    </section>
+        </div>
+    </form>
+</header>
+<section class="uk-flex-1 uk-flex">
+    <aside class="uk-padding uk-width-medium uk-flex-stretch uk-background-secondary uk-overflow-auto">
+        <ul id="accordion" uk-accordion="multiple: true">
+            <li>
+                <a class="uk-accordion-title" href="#">Local</a>
+                <ul id="local-nav" class="uk-accordion-content uk-nav">
+                    <li><a class="uk-link-text">directory</a></li>
+                    <li><a class="uk-link-text">directory</a></li>
+                    <li><a class="uk-link-text">directory</a></li>
+                </ul>
+            </li>
+            <li>
+                <a class="uk-accordion-title" href="#">Remote</a>
+                <ul id="remote-nav" class="uk-accordion-content uk-nav">
+                    <li><a class="uk-link-text">directory</a></li>
+                    <li><a class="uk-link-text">directory</a></li>
+                    <li><a class="uk-link-text">directory</a></li>
+                </ul>
+            </li>
+            <li>
+                <a class="uk-accordion-title" href="#">Parent directories</a>
+                <ul id="path-nav" class="uk-accordion-content uk-nav">
+
+                </ul>
+            </li>
+        </ul>
+    </aside>
+    <main id="main-section"
+          class="uk-width-expand uk-overflow-auto uk-text-center uk-padding uk-flex uk-flex-top uk-flex-left uk-grid-small"
+          uk-grid="">
+    </main>
+</section>
+<footer class="uk-flex uk-flex-between uk-navbar-container uk-navbar-transparent  uk-padding-small">
+    <div class="uk-navbar-left">
+        <span id="error-icon" class="uk-padding-small uk-padding-remove-vertical" uk-icon="icon: warning; ratio: 1.2"
+              hidden></span>
+        <span id="error-message">&#8203;</span>
+    </div>
+    <div class="uk-navbar-right">
+        <div id="spinner" uk-spinner="" style="visibility: hidden"></div>
+    </div>
+</footer>
 </body>
 </html>

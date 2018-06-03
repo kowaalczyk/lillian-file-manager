@@ -14,12 +14,28 @@ body, html {
     background-color: #E2D0D7 !important;
 }
 
+footer {
+    background-color: #d8c1ca;
+}
+
 input.uk-input:focus {
     border-color: #947280 !important;
 }
 
 main {
     align-content: flex-start;
+}
+
+hr {
+    border-top: 1px solid #666;
+}
+
+a#config-button {
+    color: white;
+}
+
+a#config-button:hover {
+    color: #947280;
 }
 
 .object {
