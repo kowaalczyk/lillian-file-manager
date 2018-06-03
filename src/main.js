@@ -18,6 +18,8 @@ if (!isDev) {
 
 
 let mainWindow = null;
+let userData = null;
+let userDataFile = './.userdata';
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -32,13 +34,20 @@ app.on('ready', () => {
         mainWindow = null;
     });
 
+    userData = JSON.parse(userDataFile);
+
+
     // Parse command line arguments
     ipcMain.on('ready', (event) => {
-        if (process.argv.length === NUM_OF_ARGS) {
-            event.sender.send('response', pathToJson(process.argv[NUM_OF_ARGS - 1]));
-        } else if (process.argv.length !== NUM_OF_ARGS - 1) {
+        if (process.argv.length !== NUM_OF_ARGS - 1) {
             console.error('Wrong arguments!');
-            mainWindow.close()
+            mainWindow.close();
+        } else {
+            event.sender.send('response', getAllDiscs());
+
+            if (process.argv.length === NUM_OF_ARGS) {
+                event.sender.send('response', pathToJson(process.argv[NUM_OF_ARGS - 1]));
+            }
         }
     });
 
@@ -52,6 +61,29 @@ app.on('window-all-closed', () => {
     app.quit();
 });
 
+function getAllDiscs() {
+    let allDiscsArray = [];
+
+    for(let i = 0; i < userData["local"].length; i++) {
+        allDiscsArray.push(userData["local"][i]["alias"]);
+    }
+
+    for(let i = 0; i < userData["remote"].length; i++) {
+        allDiscsArray.push(userData["remote"][i]["alias"])
+    }
+
+    return allDiscsArray;
+}
+
+function isLocal(rMsg) {
+    for(let i = 0; i < userData["local"].length; i++) {
+        if (userData["local"][i]["alias"] == rMsg["alias"]) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 // Assuming that there is something more than just root in the pathObject
 function splitLinux(pathObject) {
