@@ -1,5 +1,9 @@
 const jsonfile = require('jsonfile');
 
+function createResponse(valid, msg) {
+    return {'valid': valid, 'message': msg};
+}
+
 class UserData {
     constructor(filePath = './.userData') {
         this._filePath = filePath;
@@ -34,6 +38,10 @@ class UserData {
         }
     }
 
+    aliasUsed(alias) {
+        return !!(this.findLoc(alias));
+    }
+
     /**
      * Returns full object that is present at @param[index] in array containing all objects of provided type.
      * Can throw TypeError or return null if bad index is specified.
@@ -45,49 +53,64 @@ class UserData {
     }
 
     /**
+     * Creates new location to the file.
+     * Assumes updatedLocation is a json in location format same as the one used for storage,
+     * and locType is a string.
+     */
+    createLocation(locType, newLocation) {
+        let alias = newLocation['alias'];
+
+        if (this.aliasUsed(alias)) {
+            return createResponse(false, 'Alias already used.');
+        } else {
+            this._userData[locType].push(newLocation);
+            return {'valid' : true, 'msg' : 'Location has been created.'};
+        }
+    }
+
+
+    /**
      * Updates location stored in file.
      * Assumes updatedLocation is a json in location format same as the one used for storage,
      * and locType is a string.
      */
-    update(locType, updatedLocation) {
-        const locData = findLoc(updatedLocation['alias']);
+    updateUserData(updatedLocation, oldAlias = null) {
+        let newAlias = updatedLocation['alias'];
+        let locData;
 
-        if (locData) {
-            // loc with a given alias already exists in the userData
-            const foundLocType = locData['locType'];
-            const foundLocIndex = locData['index'];
-
-            if (foundLocType !== locType) {
-                return {'valid': false, 'msg': 'Alias is already used.'};
-            } else {
-                // update existing location
-                this._userData[locType][foundLocIndex] = updatedLocation;
-                return {'valid': true, 'msg': 'Existing location updated.'};
+        if (oldAlias && (newAlias !== oldAlias)) {
+            // update requires renaming the location
+            if (this.aliasUsed(newAlias)) {
+                return {'valid': false, 'msg': 'New alias is already used.'}
             }
 
+            locData = this.findLoc(oldAlias); // assuming that it always exists ?
         } else {
-            // adding new location
-            this._userData[locType].push(updatedLocation);
-            return {'valid': true, 'msg': 'New location added.'};
+            // no renaming required
+            locData = this.findLoc(newAlias); // assuming that it always exists ?
         }
-        // TODO: Save to file
+
+        if (locData) {
+            let {locType, index} = locData;
+            this._userData[locType].splice(index, 1);
+            this._userData[locType].push(updatedLocation);
+            return createResponse(true, 'Location has been updated.');
+        } else {
+            return createResponse(false, 'Previous location does not exist ???');
+        }
     }
 
     /**
      * Attempts to remove location alias,
      * returns appropriate message (success or error) that can be sent to renderer.
      */
-    removeLocation(alias) {  // TODO: Test
-        const locData = findLoc(alias);
-
-        if (locDdata) {
-            // loc with a given alias already exists in the userData, remove it
-            const locType = locData['locType'];
-            const index = locData['index'];
-            this._userData[locType].splice(index, 1);
-            return {'valid': true, 'msg': 'Location has been removed.'};
+    removeLocation(alias) {
+        if (!this.aliasUsed(alias)) {
+            return createResponse(false, 'Location does not exist.');
         } else {
-            return {'valid': false, 'msg': 'Location does not exist.'};
+            let {locType, index} = this.findLoc(alias);
+            this._userData[locType].splice(index, 1);
+            return {'valid' : true, 'msg' : 'Location has been removed.'};
         }
     }
 

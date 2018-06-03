@@ -124,21 +124,6 @@ app.on('window-all-closed', () => {
     app.quit();
 });
 
-// Not needed for now TODO: If needed in future, make sure to change userData which is now an instance of UserData (not an array)
-// function getAllDiscs() {
-//     let allDiscsArray = [];
-//
-//     for (let i = 0; i < userData.local.length; i++) {
-//         allDiscsArray.push(userData.local[i].alias);
-//     }
-//
-//     for (let i = 0; i < userData.remote.length; i++) {
-//         allDiscsArray.push(userData.remote[i].alias)
-//     }
-//
-//     return allDiscsArray;
-// }
-
 function parseRemoteJsonChunk(arr, isNew = false) {
     // TODO error handling, fast fix
     if (!arr || !arr[0] || !(arr[0].e)) {
