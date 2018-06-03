@@ -1,0 +1,15 @@
+* {
+    font-family: Comfortaa, sans-serif !important;
+}
+
+body, html {
+    height: 100vh !important;
+}
+
+.uk-background-primary {
+    background-color: #c5a1af !important;
+}
+
+.uk-background-secondary {
+    background-color: #E2D0D7 !important;
+}
