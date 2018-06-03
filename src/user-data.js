@@ -76,7 +76,7 @@ class UserData {
      */
     updateUserData(updatedLocation, oldAlias = null) {
         let newAlias = updatedLocation['alias'];
-        let locData;
+        let locInfo;
 
         if (oldAlias && (newAlias !== oldAlias)) {
             // update requires renaming the location
@@ -84,14 +84,14 @@ class UserData {
                 return {'valid': false, 'msg': 'New alias is already used.'}
             }
 
-            locData = this.findLoc(oldAlias); // assuming that it always exists ?
+            locInfo = this.findLoc(oldAlias); // assuming that it always exists ?
         } else {
             // no renaming required
-            locData = this.findLoc(newAlias); // assuming that it always exists ?
+            locInfo = this.findLoc(newAlias); // assuming that it always exists ?
         }
 
-        if (locData) {
-            let {locType, index} = locData;
+        if (locInfo) {
+            let {locType, index} = locInfo;
             this._userData[locType].splice(index, 1);
             this._userData[locType].push(updatedLocation);
             return createResponse(true, 'Location has been updated.');
