@@ -43,7 +43,7 @@ app.on('ready', () => {
             console.error('Wrong arguments!');
             mainWindow.close();
         } else {
-            event.sender.send('response', getAllDiscs());
+            event.sender.send('response', userData);
 
             if (process.argv.length === NUM_OF_ARGS) {
                 event.sender.send('response', pathToJson(process.argv[NUM_OF_ARGS - 1]));
@@ -67,10 +67,12 @@ app.on('window-all-closed', () => {
     app.quit();
 });
 
+// I assume that path in rMsg starts with / (or \)
 function concatPath(rMsg) {
-    // TODO: Concatenate alias with path
+    return rMsg.alias.concat(rMsg.path);
 }
 
+// Not needed for now
 function getAllDiscs() {
     let allDiscsArray = [];
 
@@ -85,27 +87,14 @@ function getAllDiscs() {
     return allDiscsArray;
 }
 
-function findLoc(alias) {
-    for (let locType of userData) {
-        for(let i = 0; i < userData[locType].length; i++) {
-            if (userData[locType][i]["alias"] === alias) {
-                return {"locType" : locType, "index" : i};
-            }
+function isLocal(rMsg) {
+    for(let i = 0; i < userData.local.length; i++) {
+        if (userData.local[i].alias === rMsg.alias) {
+            return true;
         }
     }
 
-    return null;
-}
-
-function isLocal(rMsg) {
-    let locInfo = findLoc(rMsg["alias"]);
-
-    if (locInfo) {
-        return (locInfo["locType"] === "local")
-    } else {
-        // location doesn't exist
-        return null;
-    }
+    return false;
 }
 
 function parseRemoteJsonChunk(arr, isNew=false) {
