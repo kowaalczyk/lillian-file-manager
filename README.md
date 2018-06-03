@@ -111,6 +111,8 @@ Renderer requests for deleting location using message 'deleteDisc'. This message
 "Docs"
 ```
 
+Main responds to request message 'userConfig' with message with the same name containing whole userData.
+
 Main responds to requests for adding, updating and deleting using message 'actionResult'. This message contains bool variabe informing if requested action was performed and message about action. Example:
 ```javascript
 {
