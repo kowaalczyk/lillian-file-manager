@@ -5,6 +5,8 @@ app = Flask(__name__)
 TEST_LOGIN = 'dupa'
 TEST_PASSWORD = 'qweqweqwe'
 
+TEST_SLEEP_DELAY_IN_LONGEST_PATH = 3
+
 FILES = {
     '': [
         {
@@ -87,6 +89,10 @@ def get_file():
 
     try:
         ret = FILES[path]
+
+        if path == 'folder2/folder3/folder4':
+            sleep(TEST_SLEEP_DELAY_IN_LONGEST_PATH)
+
     except KeyError:
         ret = [{
             'k': 'e',

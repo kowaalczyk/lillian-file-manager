@@ -16,7 +16,7 @@ Password: `qweqweqwe`
 `folder1`  
 `folder2`  
 `folder2/folder3`  
-`folder2/folder3/folder4`  
+`folder2/folder3/folder4` (path with delay for testing loading circle)
   
 Path contents can be checked in python file.  
   
