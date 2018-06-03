@@ -113,6 +113,8 @@ function isLocal(alias) {
     }
 }
 
+// assumes that updatedLocation is a valid location json (w/ keys alias, path/url, ...)
+// todo test
 function updateUserData(locType, updatedLocation) {
     let locData = findLoc(updatedLocation['alias']);
 
@@ -122,17 +124,32 @@ function updateUserData(locType, updatedLocation) {
         let foundLocIndex = locData['index'];
 
         if (foundLocType !== locType) {
-            return {'valid' : false, 'msg' : 'Alias is already used.'}
+            return {'valid' : false, 'msg' : 'Alias is already used.'};
         } else {
             // update existing location
             userData[locType][foundLocIndex] = updatedLocation;
-            return {'valid' : true, 'msg' : 'Existing location updated.'}
+            return {'valid' : true, 'msg' : 'Existing location updated.'};
         }
 
     } else {
         // adding new location
-        userData[locType].push(updatedLocation)
-        return {'valid' : true, 'msg' : 'New location added.'}
+        userData[locType].push(updatedLocation);
+        return {'valid' : true, 'msg' : 'New location added.'};
+    }
+}
+
+// todo test
+function removeLocation(alias) {
+    let locData = findLoc(alias);
+
+    if (locDdata) {
+        // loc with a given alias already exists in the userData, remove it
+        let locType = locData['locType'];
+        let index = locData['index'];
+        userData[locType].splice(index, 1);
+        return {'valid' : true, 'msg' : 'Location has been removed.'};
+    } else {
+        return {'valid' : false, 'msg' : 'Location does not exist.'};
     }
 }
 
