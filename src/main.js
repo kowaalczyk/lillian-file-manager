@@ -7,6 +7,7 @@ const isDev = require('electron-is-dev');
 
 const http = require('http');
 const querystring = require('querystring');
+const oboe = require('oboe');
 
 const ph = require('./path-handling.js');
 const UserData = require('./user-data');
@@ -67,6 +68,8 @@ app.on('ready', () => {
         event.sender.send('response', replyMsg);
     });
 
+
+
     ipcMain.on('remoteRequest', (event, rMsg) => {
         const locTypeAndIndex = userData.findLoc(rMsg.alias);
         if (locTypeAndIndex === null) {
@@ -78,37 +81,31 @@ app.on('ready', () => {
         } else {
             const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
 
-            const postData = querystring.stringify({
+            const postData = {
                 l: locData.login,
                 p: locData.pass,
                 q: rMsg.path
-            });
+            };
 
-            let responseFull = [];
+            let arr = [];
 
-            http.request({
-                url: locData.url,
-                method: 'POST',
+            oboe({
+                method: 'GET',
+                url: locData.url + `?l=${locData.login}&p=${locData.pass}&q=${locData.path}`,
+                agent: false,
                 headers: {
-                    'Content-Type': 'application/json'
-                },
-                content: JSON.stringify(postData)
-            }).then(res => {
-                res.on('data', (chunk) => {
-                    console.log(`BODY: ${chunk}`); // TODO: Extract valid json chunk
-                    responseFull = responseFull.concat(chunk);
-                });
-                res.on('end', () => {
-                    console.log('No more data in response.');
-                    // TODO: handle end event
-                });
-            }, err => {
-                console.log("Error: " + (err.message || err));
-                // TODO: Pass to renderer
+                    'User-Agent': 'something',
+                }
+            }).node('!.*', (data) => {
+                // console.log(data);
+                arr.push(data);
+            }).fail((error) => {
+                console.log('oboe', error);  // TODO: Handle
+            }).done(() => {
+                // console.log(arr);
+                event.sender.send('response', parseRemoteJsonChunk(arr, true));
             });
 
-
-            event.sender.send('response', parseRemoteJsonChunk(responseFull, true));
             // TODO: Send chunks directly to renderer
             // TODO: In reply add isLocal and alias
         }
@@ -154,9 +151,9 @@ app.on('window-all-closed', () => {
     app.quit();
 });
 
-function parseRemoteJsonChunk(arr, isNew = false) {
+function parseRemoteJsonChunk(arr, isNew = false) {  // TODO: More params (see returned values below)
     // TODO error handling, fast fix
-    if (!arr || !arr[0] || !(arr[0].e)) {
+    if (!arr || !arr[0]) {
         return null;
     }
 
@@ -167,19 +164,18 @@ function parseRemoteJsonChunk(arr, isNew = false) {
         }
     }
 
-    let files = arr.filter(item => (item.k === 'f')).map(f => ({
-        name: f.n,
-        type: 'file'
-    }));
-
-    let dirs = arr.filter(item => (item.k === 'd')).map(d => ({
-        name: f.n,
-        type: 'directory'
-    }));
+    let files = arr.filter(item => (item.k === 'f')).map(f => f.n);
+    let dirs = arr.filter(item => (item.k === 'd')).map(d => d.n);
 
     return {
+        isLocal: false,
         isNew,
-        parsedFiles: dirs.concat(files),
+        alias: '',
+        dividedPath: [],  // TODO: names of parent folders
+        parentPaths: [],  // TODO: paths to parent folders (root->down)
+        path: 'XD',  // TODO,
+        filesNames: files,
+        dirsNames: dirs,
         valid: true
     }
 }
