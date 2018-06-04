@@ -94,59 +94,74 @@ function jsonConcat(json1, json2) {
 
 function pathToJson(pathArg) {
     'use strict';
-    try {
-        let normPathArg = path.normalize(pathArg);
-        // LINUX:
-        // path.normalize('/foo/bar//baz/asdf/quux/..');
-        // Returns: '/foo/bar/baz/asdf'
 
-        // WINDOWS:
-        // path.normalize('C:\\temp\\\\foo\\bar\\..\\');
-        // Returns: 'C:\\temp\\foo\\'
+    if (pathArg === '') {
+        return {
+            'dividedPath': [ '' ],
+            'parentPaths': [ '' ],
+            'path': '',
+            'filesNames': [],
+            'dirsNames': [],
+            'valid': true,
+            'isLocal': true,
+            'alias': 'Local'
+        }
+    } else {
+        try {
+            let normPathArg = path.normalize(pathArg);
 
-        if (fs.existsSync(normPathArg)) {
-            let items = fs.readdirSync(normPathArg);
-            let filesNames = [];
-            let dirsNames = [];
+            // LINUX:
+            // path.normalize('/foo/bar//baz/asdf/quux/..');
+            // Returns: '/foo/bar/baz/asdf'
 
-            // Make sure that at the end of a path there is / or \:
-            if (normPathArg.slice(-1) !== path.sep) {
-                normPathArg += path.sep;
-            }
-            // normPathArg now always ends on path.sep ('/' or w/e windows has)
+            // WINDOWS:
+            // path.normalize('C:\\temp\\\\foo\\bar\\..\\');
+            // Returns: 'C:\\temp\\foo\\'
 
-            for (let item of items) {
-                let pathToItem = normPathArg + item;
+            if (fs.existsSync(normPathArg)) {
+                let items = fs.readdirSync(normPathArg);
+                let filesNames = [];
+                let dirsNames = [];
 
-                try {
-                    let stats = fs.statSync(pathToItem);
-
-                    if (stats.isDirectory()) {
-                        dirsNames.push(item);
-                    } else {
-                        filesNames.push(item);
-                    }
-                } catch (err) {
-                    // do not display item when fs.stat throws error (permission error)
+                // Make sure that at the end of a path there is / or \:
+                if (normPathArg.slice(-1) !== path.sep) {
+                    normPathArg += path.sep;
                 }
+                // normPathArg now always ends on path.sep ('/' or w/e windows has)
+
+                for (let item of items) {
+                    let pathToItem = normPathArg + item;
+
+                    try {
+                        let stats = fs.statSync(pathToItem);
+
+                        if (stats.isDirectory()) {
+                            dirsNames.push(item);
+                        } else {
+                            filesNames.push(item);
+                        }
+                    } catch (err) {
+                        // do not display item when fs.stat throws error (permission error)
+                    }
+                }
+
+                let pathDirsJson = extractPathDirs(normPathArg);
+                pathDirsJson['path'] = normPathArg;
+                let folderContentJson = {
+                    filesNames: filesNames,
+                    dirsNames: dirsNames,
+                    valid: true
+                };
+
+                return jsonConcat(pathDirsJson, folderContentJson);
+            } else {
+                return errorHandler();
             }
 
-            let pathDirsJson = extractPathDirs(normPathArg);
-            pathDirsJson['path'] = normPathArg;
-            let folderContentJson = {
-                filesNames: filesNames,
-                dirsNames: dirsNames,
-                valid: true
-            };
-
-            return jsonConcat(pathDirsJson, folderContentJson);
-        } else {
+        } catch (err) {
+            console.error(err);
             return errorHandler();
         }
-
-    } catch (err) {
-        console.error(err);
-        return errorHandler();
     }
 }
 

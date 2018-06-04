@@ -5,9 +5,26 @@ function createResponse(valid, msg) {
 }
 
 class UserData {
+
     constructor(filePath = './.userData') {
+        this._INITIAL_LOCAL_ALIAS = 'Local';
+        this._INITIAL_LOCAL_LOCATION = {'alias': this._INITIAL_LOCAL_ALIAS, 'path': ''};
+        this._INITIAL_USER_DATA = {'local': [this._INITIAL_LOCAL_LOCATION], 'remote': []};
         this._filePath = filePath;
-        this._userData = jsonfile.readFileSync(this._filePath);
+
+        try {
+            this._userData = jsonfile.readFileSync(this._filePath);
+            console.log(this._userData);
+        } catch (e) {
+            console.log(e);
+            this._userData = this._INITIAL_USER_DATA;
+        }
+
+        if (this.getLocByAlias(this._INITIAL_LOCAL_ALIAS) === null) {
+            this.createLocation('local', this._INITIAL_LOCAL_LOCATION);
+        } else {
+            this.updateLocation(this._INITIAL_LOCAL_LOCATION, this._INITIAL_LOCAL_ALIAS);
+        }
     }
 
     /**
@@ -50,6 +67,18 @@ class UserData {
     getLocByTypeAndIndex(parameters) {
         const {locType, index} = parameters;
         return this._userData[locType][index];
+    }
+
+    getLocByAlias(alias) {
+        if (alias) {
+            let locInfo = this.findLoc(alias);
+            if (locInfo) {
+                let {locType, index} = locInfo;
+                return this._userData[locType][index];
+            }
+        }
+
+        return null;
     }
 
     /**

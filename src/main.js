@@ -62,7 +62,8 @@ app.on('ready', () => {
         let replyMsg = ph.pathToJson(pathArg);
         replyMsg["isLocal"] = true;
         replyMsg["alias"] = "";
-
+        // console.log('replyMsg');
+        // console.log(replyMsg);
         event.sender.send('response', replyMsg);
     });
 
