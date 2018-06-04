@@ -81,7 +81,7 @@ app.on('ready', () => {
                 l: locData.login,
                 p: locData.pass,
                 q: rMsg.path
-            });  // TODO: Make sure this is a query string, send as both qstring and POST body (json) to be sure its compliant with API
+            });
 
             let responseFull = [];
 
@@ -124,7 +124,8 @@ app.on('ready', () => {
 
         optionsWindow.on('closed', () => {
             event.sender.send('updateUserData', userData.data());
-            mainWindow = null;
+            mainWindow.reload();
+            optionsWindow = null;
         });
     });
 
