@@ -134,7 +134,7 @@ app.on('ready', () => {
     });
 
     ipcMain.on('updateDisc', (event, aMsg) => {
-        event.sender.send('actionResult', userData.updateUserData(aMsg.locationData, aMsg.oldAlias));
+        event.sender.send('actionResult', userData.updateLocation(aMsg.locationData, aMsg.oldAlias));
     });
 
     ipcMain.on('deleteDisc', (event, aMsg) => {
@@ -147,6 +147,7 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', () => {
+    userData.dumpToFile();
     app.quit();
 });
 
