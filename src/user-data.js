@@ -74,7 +74,7 @@ class UserData {
      * Assumes updatedLocation is a json in location format same as the one used for storage,
      * and locType is a string.
      */
-    updateUserData(updatedLocation, oldAlias = null) {
+    updateLocation(updatedLocation, oldAlias = null) {
         let newAlias = updatedLocation['alias'];
         let locInfo;
 
@@ -112,6 +112,13 @@ class UserData {
             this._userData[locType].splice(index, 1);
             return {'valid' : true, 'msg' : 'Location has been removed.'};
         }
+    }
+
+    /**
+     * Returns userData object which has keys for each location type, each pointing to an array of aliases.
+     */
+    dumpToFile() {
+        jsonfile.writeFileSync(this._filePath, this._userData);
     }
 
     /**
