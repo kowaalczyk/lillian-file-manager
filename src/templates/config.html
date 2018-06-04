@@ -20,92 +20,18 @@
 </head>
 <body class="uk-flex">
 <section class="uk-flex-1 uk-flex">
-    <main class="uk-background-secondary uk-flex-1 uk-padding">
+    <main class="uk-background-secondary uk-flex-1 uk-padding uk-overflow-auto">
         <h3 class="uk-h3">Local</h3>
-        <ul class="uk-list uk-list-divider">
-            <li class="uk-flex">
-                <div>List item 1</div>
-                <div class="uk-flex-1"></div>
-                <div>
-                    <a href="" uk-icon="icon: pencil"></a>
-                    <a href="" uk-icon="icon: trash"></a>
-                </div>
-            </li>
-            <li class="uk-flex">
-                <div>List item 1</div>
-                <div class="uk-flex-1"></div>
-                <div>
-                    <a href="" uk-icon="icon: pencil"></a>
-                    <a href="" uk-icon="icon: trash"></a>
-                </div>
-            </li>
-            <li class="uk-flex">
-                <div>List item 1</div>
-                <div class="uk-flex-1"></div>
-                <div>
-                    <a href="" uk-icon="icon: pencil"></a>
-                    <a href="" uk-icon="icon: trash"></a>
-                </div>
-            </li>
-            <li class="uk-flex">
-                <div>List item 1</div>
-                <div class="uk-flex-1"></div>
-                <div>
-                    <a href="" uk-icon="icon: pencil"></a>
-                    <a href="" uk-icon="icon: trash"></a>
-                </div>
-            </li>
-            <li class="uk-flex">
-                <div>List item 1</div>
-                <div class="uk-flex-1"></div>
-                <div>
-                    <a href="" uk-icon="icon: pencil"></a>
-                    <a href="" uk-icon="icon: trash"></a>
-                </div>
-            </li>
-            <li class="uk-flex">
-                <div>List item 1</div>
-                <div class="uk-flex-1"></div>
-                <div>
-                    <a href="" uk-icon="icon: pencil"></a>
-                    <a href="" uk-icon="icon: trash"></a>
-                </div>
-            </li>
-        </ul>
+        <ul id="local-list" class="uk-list uk-list-divider"></ul>
         <h3 class="uk-h3">Remote</h3>
-        <ul class="uk-list uk-list-divider">
-            <li class="uk-flex">
-                <div>List item 1</div>
-                <div class="uk-flex-1"></div>
-                <div>
-                    <a href="" uk-icon="icon: pencil"></a>
-                    <a href="" uk-icon="icon: trash"></a>
-                </div>
-            </li>
-            <li class="uk-flex">
-                <div>List item 1</div>
-                <div class="uk-flex-1"></div>
-                <div>
-                    <a href="" uk-icon="icon: pencil"></a>
-                    <a href="" uk-icon="icon: trash"></a>
-                </div>
-            </li>
-            <li class="uk-flex">
-                <div>List item 1</div>
-                <div class="uk-flex-1"></div>
-                <div>
-                    <a href="" uk-icon="icon: pencil"></a>
-                    <a href="" uk-icon="icon: trash"></a>
-                </div>
-            </li>
-        </ul>
+        <ul id="remote-list" class="uk-list uk-list-divider"></ul>
     </main>
-    <aside class="uk-padding-small uk-background-primary uk-width-xlarge">
-        <form class="uk-grid-small" uk-grid="">
+    <aside class="uk-padding-small uk-background-primary uk-width-xlarge uk-overflow-auto">
+        <form id="add-form" class="uk-grid-small" uk-grid="">
             <fieldset class="uk-fieldset uk-width-1-1">
                 <legend class="uk-legend">Add new location</legend>
                 <div class="uk-margin uk-width-1-1">
-                    <select class="uk-select" title="">
+                    <select id="add-select" class="uk-select" title="">
                         <option>Local</option>
                         <option>Remote</option>
                     </select>
@@ -113,31 +39,31 @@
                 <div class="uk-margin uk-width-1-1">
                     <div class="uk-width-1-1 uk-inline">
                         <span class="uk-form-icon uk-text-bottom" uk-icon="icon: tag"></span>
-                        <input class="uk-input" type="text" title="" placeholder="Name">
+                        <input id="add-name" class="uk-input" type="text" title="" placeholder="Name">
                     </div>
                 </div>
                 <div class="uk-margin uk-width-1-1">
-                    <div class="uk-width-1-1 uk-inline">
+                    <div class="uk-width-1-1 uk-inline" hidden>
                         <span class="uk-form-icon uk-text-bottom" uk-icon="icon: link"></span>
-                        <input class="uk-input" type="text" title="" placeholder="URL">
+                        <input id="add-url" class="uk-input" type="text" title="" placeholder="URL">
                     </div>
                 </div>
                 <div class="uk-margin uk-width-1-1">
                     <div class="uk-width-1-1 uk-inline">
                         <span class="uk-form-icon uk-text-bottom" uk-icon="icon: folder"></span>
-                        <input class="uk-input" type="text" title="" placeholder="Directory">
-                    </div>
+                        <input id="add-path" class="uk-input" type="text" title="" placeholder="Directory">
+                    </div>S
                 </div>
                 <div class="uk-margin uk-width-1-1">
-                    <div class="uk-width-1-1 uk-inline">
+                    <div class="uk-width-1-1 uk-inline" hidden>
                         <span class="uk-form-icon uk-text-bottom" uk-icon="icon: user"></span>
-                        <input class="uk-input" type="text" title="" placeholder="Login">
+                        <input id="add-login" class="uk-input" type="text" title="" placeholder="Login">
                     </div>
                 </div>
                 <div class="uk-margin uk-width-1-1">
-                    <div class="uk-width-1-1 uk-inline">
+                    <div class="uk-width-1-1 uk-inline" hidden>
                         <span class="uk-form-icon uk-text-bottom" uk-icon="icon: lock"></span>
-                        <input class="uk-input" type="password" title="" placeholder="Password">
+                        <input id="add-password" class="uk-input" type="password" title="" placeholder="Password">
                     </div>
                 </div>
                 <div class="uk-margin uk-width-1-1">
@@ -145,42 +71,57 @@
                 </div>
             </fieldset>
         </form>
-        <form class="uk-grid-small" uk-grid="">
+        <form id="local-edit-form" class="uk-grid-small" uk-grid="" hidden>
             <fieldset class="uk-fieldset uk-width-1-1">
-                <legend class="uk-legend">Edit location</legend>
+                <legend class="uk-legend">Edit local location</legend>
                 <div class="uk-margin uk-width-1-1">
                     <div class="uk-width-1-1 uk-inline">
                         <span class="uk-form-icon uk-text-bottom" uk-icon="icon: tag"></span>
-                        <input class="uk-input" type="text" title="" placeholder="Name" value="Google Drive">
-                    </div>
-                </div>
-                <div class="uk-margin uk-width-1-1">
-                    <div class="uk-width-1-1 uk-inline">
-                        <span class="uk-form-icon uk-text-bottom" uk-icon="icon: link"></span>
-                        <input class="uk-input" type="text" title="" placeholder="URL" value="https://drive.google.com/drive/u/1/my-drive">
+                        <input id="local-edit-name" class="uk-input" type="text" title="Name" placeholder="Name" value="">
                     </div>
                 </div>
                 <div class="uk-margin uk-width-1-1">
                     <div class="uk-width-1-1 uk-inline">
                         <span class="uk-form-icon uk-text-bottom" uk-icon="icon: folder"></span>
-                        <input class="uk-input" type="text" title="" placeholder="Directory" value="photos">
+                        <input id="local-edit-path" class="uk-input" type="text" title="Directory" placeholder="Directory" value="">
+                    </div>
+                </div>
+                <div class="uk-margin uk-width-1-1 uk-flex">
+                    <button id="local-edit-cancel" class="uk-button uk-button-default uk-width-1-2" title="Cancel">Cancel</button>
+                    <button id="local-edit-save" class="uk-button uk-button-default uk-width-1-2" title="Save">Save</button>
+                </div>
+            </fieldset>
+        </form>
+        <form id="remote-edit-form" class="uk-grid-small" uk-grid="" hidden>
+            <fieldset class="uk-fieldset uk-width-1-1">
+                <legend class="uk-legend">Edit remote location</legend>
+                <div class="uk-margin uk-width-1-1">
+                    <div class="uk-width-1-1 uk-inline">
+                        <span class="uk-form-icon uk-text-bottom" uk-icon="icon: tag"></span>
+                        <input class="uk-input" type="text" id="remote-edit-name" placeholder="Name" value="">
+                    </div>
+                </div>
+                <div class="uk-margin uk-width-1-1">
+                    <div class="uk-width-1-1 uk-inline">
+                        <span class="uk-form-icon uk-text-bottom" uk-icon="icon: link"></span>
+                        <input class="uk-input" type="text" id="remote-edit-url" placeholder="URL" value="">
                     </div>
                 </div>
                 <div class="uk-margin uk-width-1-1">
                     <div class="uk-width-1-1 uk-inline">
                         <span class="uk-form-icon uk-text-bottom" uk-icon="icon: user"></span>
-                        <input class="uk-input" type="text" title="" placeholder="Login" value="tmiskow">
+                        <input class="uk-input" type="text" id="remote-edit-login" placeholder="Login" value="">
                     </div>
                 </div>
                 <div class="uk-margin uk-width-1-1">
                     <div class="uk-width-1-1 uk-inline">
                         <span class="uk-form-icon uk-text-bottom" uk-icon="icon: lock"></span>
-                        <input class="uk-input" type="password" title="" placeholder="Password" value="tolstoy">
+                        <input class="uk-input" type="password" id="remote-edit-password" placeholder="Password" value="">
                     </div>
                 </div>
                 <div class="uk-margin uk-width-1-1 uk-flex">
-                    <button class="uk-button uk-button-default uk-width-1-2">Cancel</button>
-                    <button class="uk-button uk-button-default uk-width-1-2">Save</button>
+                    <button class="uk-button uk-button-default uk-width-1-2" id="remote-edit-cancel">Cancel</button>
+                    <button class="uk-button uk-button-default uk-width-1-2" id="remote-edit-save">Save</button>
                 </div>
             </fieldset>
         </form>

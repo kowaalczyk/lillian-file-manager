@@ -116,9 +116,11 @@ app.on('ready', () => {
 
     ipcMain.on('newWindowRequest', (event, arg) => {
         optionsWindow = new BrowserWindow({
-            icon: path.join(__dirname, 'src/icons/folder128.ico'),
+            icon: path.join(__dirname, 'icons/folder128.png'),
             width: 1200,
-            height: 800
+            height: 800,
+            minWidth: 600,
+            minHeight: 400
         });
 
         optionsWindow.loadURL(`file://${__dirname}/templates/config.html`);
