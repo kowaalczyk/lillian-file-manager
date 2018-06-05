@@ -18,7 +18,7 @@ class UserData {
                     "pass": "qweqweqwe",
                     "path": "\/folder2\/folder3\/folder4",
                     "type": "remote",
-                    "url": "http:\/\/localhost:5000"
+                    "url": "http:\/\/localhost:5000\/"
                 },
                 {
                     "alias": "test root",
@@ -26,22 +26,20 @@ class UserData {
                     "pass": "qweqweqwe",
                     "path": "\/",
                     "type": "remote",
-                    "url": "http:\/\/localhost:5000"
+                    "url": "http:\/\/localhost:5000\/"
                 }
             ]
         };
 
         this._filePath = filePath;
 
-        // todo turning on reading userData from file
-        // try {
-        //     this._userData = jsonfile.readFileSync(this._filePath);
-        //     console.log(this._userData);
-        // } catch (e) {
-        //     console.log(e);
-        //     this._userData = this._INITIAL_USER_DATA;
-        // }
-        this._userData = this._INITIAL_USER_DATA;
+        try {
+            this._userData = jsonfile.readFileSync(this._filePath);
+            console.log(this._userData);
+        } catch (e) {
+            console.log(e);
+            this._userData = this._INITIAL_USER_DATA;
+        }
     }
 
     /**
