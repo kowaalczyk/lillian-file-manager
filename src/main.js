@@ -140,14 +140,17 @@ app.on('ready', () => {
 
     ipcMain.on('addDisc', (event, aMsg) => {
         event.sender.send('actionResult', userData.createLocation(aMsg.type, aMsg.locationData));
+        event.sender.send('userConfig', userData.data());
     });
 
     ipcMain.on('updateDisc', (event, aMsg) => {
         event.sender.send('actionResult', userData.updateLocation(aMsg.locationData, aMsg.oldAlias));
+        event.sender.send('userConfig', userData.data());
     });
 
     ipcMain.on('deleteDisc', (event, aMsg) => {
         event.sender.send('actionResult', userData.removeLocation(aMsg));
+        event.sender.send('userConfig', userData.data());
     });
 
     ipcMain.on('userConfig', (event, arg) => {

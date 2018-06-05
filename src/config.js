@@ -11,16 +11,22 @@ const state = {
     remote: null
 };
 
+function removeChildren(element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+}
+
 function isRemote(directory) {
     return ('url' in directory);
 }
 
 function sendUpdateRequest(data) {
+    console.log(data);
     ipcRenderer.send('updateDisc', data);
 }
 
 function sendAddRequest(data) {
-    console.log(data);
     ipcRenderer.send('addDisc', data);
 }
 
@@ -95,6 +101,8 @@ function renderList(data, listId) {
      */
 
     const list = document.getElementById(listId);
+    removeChildren(list);
+
     const holder = document.createDocumentFragment();
 
     for (const directory of data) {
@@ -120,12 +128,10 @@ function renderList(data, listId) {
             event.preventDefault();
 
             if (isRemote(directory)) {
-                console.log('remote');
                 showRemoteEdit(directory);
             } else {
                 showLocalEdit(directory);
             }
-            console.log(directory);
         });
         buttonDiv.appendChild(pencilA);
 
@@ -156,7 +162,8 @@ function setupLocalEditListeners() {
     const nameInput = document.getElementById('local-edit-name');
     const pathInput = document.getElementById('local-edit-path');
     const form = document.getElementById('local-edit-form');
-    form.addEventListener('submit', () => {
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
         const data = {
             "oldAlias" : state.activeAlias,
             "locationData" :
@@ -165,8 +172,9 @@ function setupLocalEditListeners() {
                     "path" : pathInput.value
                 }
         };
-        console.log(data);
         sendUpdateRequest(data);
+        clearForm(form);
+        hideLocalEdit();
     });
 
     const cancelButton = document.getElementById('local-edit-cancel');
@@ -176,25 +184,38 @@ function setupLocalEditListeners() {
     });
 }
 
+function clearForm(form) {
+    console.log(form);
+    for (const input of form.getElementsByTagName('input')) {
+        console.log(input);
+        input.value = "";
+    }
+}
+
 function setupRemoteEditListeners() {
     const nameInput = document.getElementById('remote-edit-name');
     const urlInput = document.getElementById('remote-edit-url');
+    const pathInput = document.getElementById('remote-edit-path');
     const loginInput = document.getElementById('remote-edit-login');
     const passwordInput = document.getElementById('remote-edit-password');
     const form = document.getElementById('remote-edit-form');
 
     form.addEventListener('submit', () => {
+        event.preventDefault();
         const data = {
             "oldAlias": state.activeAlias,
             "locationData" : {
                 "alias" : nameInput.value,
                 "url" : urlInput.value,
                 "login" : loginInput.value,
-                "pass" : passwordInput.value
+                "pass" : passwordInput.value,
+                "path": pathInput.value
             }
         };
-        console.log(data);
+
         sendUpdateRequest(data);
+        clearForm(form);
+        hideRemoteEdit();
     });
 
     const cancelButton = document.getElementById('remote-edit-cancel');
@@ -262,6 +283,7 @@ function setupAddListeners() {
 
 
         sendAddRequest(data);
+        clearForm(form);
     });
 }
 
@@ -275,6 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     ipcRenderer.on('userConfig', (event, response) => {
+        console.log(response);
         state.local = response.local;
         state.remote = response.remote;
         renderLeftPanel();

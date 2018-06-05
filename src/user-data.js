@@ -18,7 +18,7 @@ class UserData {
                     "pass": "qweqweqwe",
                     "path": "\/folder2\/folder3\/folder4",
                     "type": "remote",
-                    "url": "http:\/\/localhost:5000\/"
+                    "url": "http:\/\/127.0.0.1:5000\/"
                 },
                 {
                     "alias": "test root",
@@ -26,7 +26,7 @@ class UserData {
                     "pass": "qweqweqwe",
                     "path": "\/",
                     "type": "remote",
-                    "url": "http:\/\/localhost:5000\/"
+                    "url": "http:\/\/127.0.0.1:5000\/"
                 }
             ]
         };
