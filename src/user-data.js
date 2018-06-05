@@ -28,7 +28,7 @@ class UserData {
     }
 
     /**
-     * Returns object containing type and index by which
+     * Returns object containing type and index by which loc can be retrieved
      */
     findLoc(alias) {
         for (let locType in this._userData) {

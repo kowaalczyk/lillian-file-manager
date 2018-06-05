@@ -74,6 +74,8 @@ app.on('ready', () => {
         const locTypeAndIndex = userData.findLoc(rMsg.alias);
         current_session_id = rMsg.id;
 
+        console.log(rMsg);
+
         if (locTypeAndIndex === null) {
             sendError(event);
         } else {
@@ -90,6 +92,7 @@ app.on('ready', () => {
                 },
                 json: locData
             }).node('!.*', (data) => {
+                console.log(data);
                 arr.push(data);
 
                 if (arr.length === 10) {
@@ -98,14 +101,18 @@ app.on('ready', () => {
                     if (parsedObjects === null) {
                         sendError(event);
                     } else {
-                        addExtraAndSend(parseRemoteJsonChunk(arr, rMsg));
+                        console.log(parsedObjects);
+                        console.log(rMsg);
+                        addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
                     }
                 }
             }).fail((error) => {
+                console.log(error);
                 sendError(event);
             }).done(() => {
                 if (arr.length !== 0) {
-                    addExtraAndSend(parseRemoteJsonChunk(arr, rMsg));
+                    console.log(rMsg);
+                    addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
                 }
             });
         }
@@ -159,7 +166,7 @@ function sendError(event) {
     event.sender.send('response', errorResponse);
 }
 
-function addExtraAndSend(sessionId, validJsonReply) {
+function addExtraAndSend(sessionId, event, validJsonReply) {
     validJsonReply.isLocal = false;
     validJsonReply.alias = "";
     validJsonReply.id = sessionId;

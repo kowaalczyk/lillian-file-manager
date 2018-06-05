@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import time
 
 app = Flask(__name__)
 
@@ -69,7 +70,7 @@ FILES = {
 }
 
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def get_file():
     path = request.args.get('q')
     login = request.args.get('l')
@@ -91,7 +92,7 @@ def get_file():
         ret = FILES[path]
 
         if path == 'folder2/folder3/folder4':
-            sleep(TEST_SLEEP_DELAY_IN_LONGEST_PATH)
+            time.sleep(TEST_SLEEP_DELAY_IN_LONGEST_PATH)
 
     except KeyError:
         ret = [{
