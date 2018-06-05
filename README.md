@@ -61,6 +61,7 @@ Renderer requests for local directory content using message 'localRequest'. This
 Renderer requests for remote directory content using message 'remoteRequest'. This message is a JSON object. It contains alias of remote drive and relative path. Example of the body of message:
 ```javascript
 {
+  "id" : "6c84fb90-12c4-11e1-840d-7b25c5ee775a",
   "alias" : "Main",
   "path" : "myFile/"
 }

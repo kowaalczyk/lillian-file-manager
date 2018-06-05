@@ -1,4 +1,8 @@
+const uuid = require('uuid/v1');
 const {ipcRenderer} = require('electron');
+
+let requestId = null;
+let responseId = null;
 
 function removeChildren(element) {
     while (element.firstChild) {
@@ -81,9 +85,12 @@ function renderLocationLabel(name) {
     label.textContent = name;
 }
 
-function renderMainSection(folders, files, currentPath) {
+function renderMainSection(folders, files, currentPath, reset = true) {
     const mainSection = document.getElementById("main-section");
-    removeChildren(mainSection);
+
+    if (reset) {
+        removeChildren(mainSection);
+    }
 
     let holder = document.createDocumentFragment();
     for (let folder of folders) {
@@ -138,7 +145,20 @@ function renderResponse(response) {
 
     renderLocationLabel(isLocal ? 'Local' : alias);
     renderPanelLocal(dividedPath, parentPaths, "path-nav");
-    renderMainSection(dirsNames, filesNames, path);
+
+    if (isLocal) {
+        renderMainSection(dirsNames, filesNames, path);
+    } else {
+        const {id} = response;
+        if (id === requestId && id !== responseId) {
+            responseId = requestId;
+            renderMainSection(dirsNames, filesNames, path, true);
+        } else  if (id === responseId && id === responseId) {
+            renderMainSection(dirsNames, filesNames, path, false);
+        } else {
+            console.log("wrong response id");
+        }
+    }
 }
 
 function sendLocalRequest(path) {
@@ -148,7 +168,9 @@ function sendLocalRequest(path) {
 
 function sendRemoteRequest(alias, path) {
     showSpinner();
+    requestId = uuid();
     ipcRenderer.send('remoteRequest', {
+        id: requestId,
         alias: alias,
         path: path
     })
@@ -177,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
         hideSpinner();
     });
 
-    ipcRenderer.on('leftPanel', (event, response) => {
+    ipcRenderer.on('updateUserData', (event, response) => {
         const {local, remote} = response;
         renderPanelLocal(local.map(object => object.alias), local.map(object => object.path), 'local-nav');
         renderPanelRemote(remote.map(object => object.alias), remote.map(object => object.path), 'remote-nav');
@@ -198,7 +220,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const configButton = document.getElementById("config-button");
     configButton.addEventListener("click", () => {
-        console.log('open window');
         sendWindowRequest();
+    });
+
+    document.addEventListener("drop", (e) => {
+        e.preventDefault();
+    });
+
+    document.addEventListener("dragover", (e) => {
+        e.preventDefault();
     });
 });

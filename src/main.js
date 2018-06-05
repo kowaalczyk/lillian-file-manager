@@ -75,7 +75,7 @@ app.on('ready', () => {
         current_session_id = rMsg.id;
 
         if (locTypeAndIndex === null) {
-            sendError();
+            sendError(event);
         } else {
             const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
 
@@ -96,13 +96,13 @@ app.on('ready', () => {
                     let parsedObjects = parseRemoteJsonChunk(arr, rMsg);
 
                     if (parsedObjects === null) {
-                        sendError();
+                        sendError(event);
                     } else {
                         addExtraAndSend(parseRemoteJsonChunk(arr, rMsg));
                     }
                 }
             }).fail((error) => {
-                sendError();
+                sendError(event);
             }).done(() => {
                 if (arr.length !== 0) {
                     addExtraAndSend(parseRemoteJsonChunk(arr, rMsg));
@@ -152,7 +152,7 @@ app.on('window-all-closed', () => {
     app.quit();
 });
 
-function sendError() {
+function sendError(event) {
     const errorResponse = {
         valid: false
     };

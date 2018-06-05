@@ -68,6 +68,9 @@ function showRemoteEdit(directory) {
     const nameInput = document.getElementById('remote-edit-name');
     nameInput.value = directory.alias;
 
+    const pathInput = document.getElementById('remote-edit-path');
+    pathInput.value = directory.path;
+
     const urlInput = document.getElementById('remote-edit-url');
     urlInput.value = directory.url;
 
@@ -223,25 +226,37 @@ function setupAddListeners() {
                 nameInput.parentElement.hidden = false;
                 urlInput.parentElement.hidden = false;
                 loginInput.parentElement.hidden = false;
+                pathInput.parentElement.hidden = false;
                 passwordInput.parentElement.hidden = false;
-
-                pathInput.parentElement.hidden = true;
                 break;
         }
     });
 
     const form = document.getElementById('add-form');
     form.addEventListener('submit', (event) => {
+
+        const type = typeSelect.value.toLowerCase();
         const data = {
-            "type" : typeSelect.value.toLowerCase(),
-            "locationData" : {
-                "alias" : nameInput.value,
-                "path": pathInput.value,
-                "url" : urlInput.value,
-                "login" : loginInput.value,
-                "pass" : passwordInput.value
-            }
+            type: type,
+            locationData: {}
         };
+
+        switch (type) {
+            case "remote":
+                data.locationData.type = type;
+                data.locationData.alias = nameInput.value;
+                data.locationData.path = pathInput.value;
+                data.locationData.url = urlInput.value;
+                data.locationData.login = loginInput.value;
+                data.locationData.pass = passwordInput.value;
+                break;
+
+            case "local":
+                data.locationData.type = type;
+                data.locationData.alias = nameInput.value;
+                data.locationData.path = pathInput.value;
+                break;
+        }
 
         sendAddRequest(data);
     });
