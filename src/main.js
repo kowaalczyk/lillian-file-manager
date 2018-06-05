@@ -23,6 +23,7 @@ if (!isDev) {
 let mainWindow = null;
 let optionsWindow = null;
 let userData = null;
+let current_session_id;
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -47,7 +48,8 @@ app.on('ready', () => {
             console.error('Wrong arguments!');
             mainWindow.close();
         } else {
-            event.sender.send('leftPanel', userData.data());
+            event.sender.send('updateUserData', userData.data());
+            console.log(userData.data());
 
             if (process.argv.length === NUM_OF_ARGS) {
                 let replyMsg = ph.pathToJson(process.argv[NUM_OF_ARGS - 1]);
@@ -63,8 +65,6 @@ app.on('ready', () => {
         let replyMsg = ph.pathToJson(pathArg);
         replyMsg["isLocal"] = true;
         replyMsg["alias"] = "";
-        // console.log('replyMsg');
-        // console.log(replyMsg);
         event.sender.send('response', replyMsg);
     });
 
@@ -72,42 +72,42 @@ app.on('ready', () => {
 
     ipcMain.on('remoteRequest', (event, rMsg) => {
         const locTypeAndIndex = userData.findLoc(rMsg.alias);
-        if (locTypeAndIndex === null) {
-            const errorResponse = {
-                valid: false
-            };
+        current_session_id = rMsg.id;
 
-            event.sender.send('response', errorResponse);
+        if (locTypeAndIndex === null) {
+            sendError();
         } else {
             const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
-
-            const postData = {
-                l: locData.login,
-                p: locData.pass,
-                q: rMsg.path
-            };
 
             let arr = [];
 
             oboe({
-                method: 'GET',
+                method: 'POST',
                 url: locData.url + `?l=${locData.login}&p=${locData.pass}&q=${locData.path}`,
                 agent: false,
                 headers: {
                     'User-Agent': 'something',
-                }
+                },
+                json: locData
             }).node('!.*', (data) => {
-                // console.log(data);
                 arr.push(data);
-            }).fail((error) => {
-                console.log('oboe', error);  // TODO: Handle
-            }).done(() => {
-                // console.log(arr);
-                event.sender.send('response', parseRemoteJsonChunk(arr, true));
-            });
 
-            // TODO: Send chunks directly to renderer
-            // TODO: In reply add isLocal and alias
+                if (arr.length === 10) {
+                    let parsedObjects = parseRemoteJsonChunk(arr, rMsg);
+
+                    if (parsedObjects === null) {
+                        sendError();
+                    } else {
+                        addExtraAndSend(parseRemoteJsonChunk(arr, rMsg));
+                    }
+                }
+            }).fail((error) => {
+                sendError();
+            }).done(() => {
+                if (arr.length !== 0) {
+                    addExtraAndSend(parseRemoteJsonChunk(arr, rMsg));
+                }
+            });
         }
     });
 
@@ -117,14 +117,15 @@ app.on('ready', () => {
             width: 1200,
             height: 800,
             minWidth: 600,
-            minHeight: 400
+            minHeight: 400,
+            parent: mainWindow,
+            modal: true
         });
 
         optionsWindow.loadURL(`file://${__dirname}/templates/config.html`);
 
         optionsWindow.on('closed', () => {
             event.sender.send('updateUserData', userData.data());
-            mainWindow.reload();
             optionsWindow = null;
         });
     });
@@ -151,8 +152,22 @@ app.on('window-all-closed', () => {
     app.quit();
 });
 
-function parseRemoteJsonChunk(arr, isNew = false) {  // TODO: More params (see returned values below)
-    // TODO error handling, fast fix
+function sendError() {
+    const errorResponse = {
+        valid: false
+    };
+    event.sender.send('response', errorResponse);
+}
+
+function addExtraAndSend(sessionId, validJsonReply) {
+    validJsonReply.isLocal = false;
+    validJsonReply.alias = "";
+    validJsonReply.id = sessionId;
+
+    event.sender.send('response', validJsonReply);
+}
+
+function parseRemoteJsonChunk(arr, rMsg) {
     if (!arr || !arr[0]) {
         return null;
     }
@@ -169,11 +184,10 @@ function parseRemoteJsonChunk(arr, isNew = false) {  // TODO: More params (see r
 
     return {
         isLocal: false,
-        isNew,
-        alias: '',
-        dividedPath: [],  // TODO: names of parent folders
-        parentPaths: [],  // TODO: paths to parent folders (root->down)
-        path: 'XD',  // TODO,
+        alias: rMsg.alias,
+        dividedPath: ph.dividePath(rMsg.path),
+        parentPaths: ph.extractParents(rMsg.path),
+        path: rMsg.path,
         filesNames: files,
         dirsNames: dirs,
         valid: true

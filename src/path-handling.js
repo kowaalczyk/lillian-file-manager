@@ -165,6 +165,25 @@ function pathToJson(pathArg) {
     }
 }
 
+function dividePath(path) {
+    return path.split("/");
+}
+
+function extractParents(path) {
+    let dividedArg = dividePath(path);
+    let summed = '';
+    let parentPaths = [];
+
+    for (let i = 0; i < dividedArg.length; i++) {
+        summed = summed + '/' + dividedArg[i];
+        parentPaths.push(summed)
+    }
+
+    return parentPaths;
+}
+
 module.exports = {
-    pathToJson
+    pathToJson,
+    dividePath,
+    extractParents
 };
