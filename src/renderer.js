@@ -81,6 +81,7 @@ function renderPanelRemote(names, paths, panelId) {
 }
 
 function renderLocationLabel(name) {
+    console.log(name);
     const label = document.getElementById("location-label");
     label.textContent = name;
 }

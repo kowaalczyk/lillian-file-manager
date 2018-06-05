@@ -172,7 +172,6 @@ function sendError(event) {
 
 function addExtraAndSend(sessionId, event, validJsonReply) {
     validJsonReply.isLocal = false;
-    validJsonReply.alias = "";
     validJsonReply.id = sessionId;
 
     event.sender.send('response', validJsonReply);
@@ -203,5 +202,5 @@ function parseRemoteJsonChunk(arr, rMsg) {
         filesNames: files,
         dirsNames: dirs,
         valid: true
-    }
+    };
 }
