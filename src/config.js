@@ -20,6 +20,7 @@ function sendUpdateRequest(data) {
 }
 
 function sendAddRequest(data) {
+    console.log(data);
     ipcRenderer.send('addDisc', data);
 }
 
@@ -234,6 +235,7 @@ function setupAddListeners() {
 
     const form = document.getElementById('add-form');
     form.addEventListener('submit', (event) => {
+        event.preventDefault();
 
         const type = typeSelect.value.toLowerCase();
         const data = {
@@ -257,6 +259,7 @@ function setupAddListeners() {
                 data.locationData.path = pathInput.value;
                 break;
         }
+
 
         sendAddRequest(data);
     });

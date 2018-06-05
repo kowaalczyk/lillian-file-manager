@@ -23,7 +23,6 @@ if (!isDev) {
 let mainWindow = null;
 let optionsWindow = null;
 let userData = null;
-let current_session_id;
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -72,7 +71,7 @@ app.on('ready', () => {
 
     ipcMain.on('remoteRequest', (event, rMsg) => {
         const locTypeAndIndex = userData.findLoc(rMsg.alias);
-        current_session_id = rMsg.id;
+        const current_session_id = rMsg.id;
 
         console.log(rMsg);
 
@@ -80,8 +79,9 @@ app.on('ready', () => {
             sendError(event);
         } else {
             const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
+            console.log(locData);
 
-            let arr = [];
+            const arr = [];
 
             oboe({
                 method: 'POST',
@@ -110,6 +110,7 @@ app.on('ready', () => {
                 console.log(error);
                 sendError(event);
             }).done(() => {
+                console.log(arr);
                 if (arr.length !== 0) {
                     console.log(rMsg);
                     addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));

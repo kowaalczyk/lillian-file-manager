@@ -85,8 +85,10 @@ function renderLocationLabel(name) {
     label.textContent = name;
 }
 
-function renderMainSection(folders, files, currentPath, reset = true) {
+function renderMainSection(isLocal, alias, folders, files, currentPath, reset = true) {
     const mainSection = document.getElementById("main-section");
+
+    console.log(currentPath);
 
     if (reset) {
         removeChildren(mainSection);
@@ -97,7 +99,12 @@ function renderMainSection(folders, files, currentPath, reset = true) {
         let div = createObjectDiv(folder, "../icons/folder128.png", currentPath);
         div.addEventListener("dblclick", () => {
             const path = currentPath + folder;
-            sendLocalRequest(path);
+
+            if (isLocal) {
+                sendLocalRequest(path);
+            } else {
+                sendRemoteRequest(alias, path);
+            }
         });
         holder.appendChild(div);
     }
@@ -138,6 +145,7 @@ function hideSpinner() {
 }
 
 function renderResponse(response) {
+    console.log(response);
     const {path, filesNames, dirsNames, dividedPath, parentPaths, isLocal, alias} = response;
 
     const pathInput = document.getElementById("path-input");
@@ -146,15 +154,17 @@ function renderResponse(response) {
     renderLocationLabel(isLocal ? 'Local' : alias);
     renderPanelLocal(dividedPath, parentPaths, "path-nav");
 
+    console.log(path);
+
     if (isLocal) {
-        renderMainSection(dirsNames, filesNames, path);
+        renderMainSection(isLocal, alias, dirsNames, filesNames, path);
     } else {
         const {id} = response;
         if (id === requestId && id !== responseId) {
             responseId = requestId;
-            renderMainSection(dirsNames, filesNames, path, true);
+            renderMainSection(isLocal, alias, dirsNames, filesNames, path, true);
         } else  if (id === responseId && id === responseId) {
-            renderMainSection(dirsNames, filesNames, path, false);
+            renderMainSection(isLocal, alias, dirsNames, filesNames, path, false);
         } else {
             console.log("wrong response id");
         }
@@ -169,11 +179,15 @@ function sendLocalRequest(path) {
 function sendRemoteRequest(alias, path) {
     showSpinner();
     requestId = uuid();
-    ipcRenderer.send('remoteRequest', {
+    const data = {
         id: requestId,
         alias: alias,
         path: path
-    })
+    };
+
+    ipcRenderer.send('remoteRequest', data);
+    ipcRenderer.send('remoteRequest', data);
+    console.log(data);
 }
 
 function sendWindowRequest() {
@@ -201,6 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ipcRenderer.on('updateUserData', (event, response) => {
         const {local, remote} = response;
+        console.log(response);
         renderPanelLocal(local.map(object => object.alias), local.map(object => object.path), 'local-nav');
         renderPanelRemote(remote.map(object => object.alias), remote.map(object => object.path), 'remote-nav');
     });
