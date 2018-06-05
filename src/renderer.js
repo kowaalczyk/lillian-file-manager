@@ -186,7 +186,6 @@ function sendRemoteRequest(alias, path) {
     };
 
     ipcRenderer.send('remoteRequest', data);
-    ipcRenderer.send('remoteRequest', data);
     console.log(data);
 }
 
