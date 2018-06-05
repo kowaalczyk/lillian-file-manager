@@ -54,7 +54,7 @@ function getLinksWindows(dividedPath, root) {
 
 'use strict';
 function extractPathDirs(pathArg, remote = false) {
-
+    console.log("EXTRACT PATH DIRS");
     // Default for case of root dir
     let dividedPath = [];
     let parentsPaths = [];
@@ -165,24 +165,18 @@ function pathToJson(pathArg) {
     }
 }
 
-// function dividePath(path) {
-//     return path.split("/");
-// }
-//
-// function extractParents(path) {
-//     let dividedArg = dividePath(path);
-//     let summed = '';
-//     let parentPaths = [];
-//
-//     for (let i = 0; i < dividedArg.length; i++) {
-//         summed = summed + '/' + dividedArg[i];
-//         parentPaths.push(summed)
-//     }
-//
-//     return parentPaths;
-// }
+function normalizeRemotePath(pathArg) {
+    let normPathArg = path.normalize(pathArg);
+    // Make sure that at the end of a path there is /
+    if (normPathArg.slice(-1) !== path.sep) {
+        normPathArg += path.sep;
+    }
+
+    return normPathArg;
+}
 
 module.exports = {
     pathToJson,
-    extractPathDirs
+    extractPathDirs,
+    normalizeRemotePath
 };
