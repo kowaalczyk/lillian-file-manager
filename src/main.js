@@ -189,12 +189,13 @@ function parseRemoteJsonChunk(arr, rMsg) {
 
     let files = arr.filter(item => (item.k === 'f')).map(f => f.n);
     let dirs = arr.filter(item => (item.k === 'd')).map(d => d.n);
+    let {dividedPath, parentPaths} = ph.extractPathDirs(rMsg.path);
 
     return {
         isLocal: false,
         alias: rMsg.alias,
-        dividedPath: ph.dividePath(rMsg.path),
-        parentPaths: ph.extractParents(rMsg.path),
+        dividedPath: dividedPath,
+        parentPaths: parentPaths,
         path: rMsg.path,
         filesNames: files,
         dirsNames: dirs,

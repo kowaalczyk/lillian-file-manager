@@ -9,7 +9,7 @@ TEST_PASSWORD = 'qweqweqwe'
 TEST_SLEEP_DELAY_IN_LONGEST_PATH = 3
 
 FILES = {
-    '': [
+    '/': [
         {
             'k': 'd',
             'n': 'folder1'
@@ -19,7 +19,7 @@ FILES = {
             'n': 'folder2'
         }
     ],
-    'folder1': [
+    '/folder1': [
         {
             'k': 'f',
             'n': 'file1'
@@ -37,7 +37,7 @@ FILES = {
             'n': 'file4'
         }
     ],
-    'folder2': [
+    '/folder2': [
         {
             'k': 'd',
             'n': 'folder3'
@@ -51,13 +51,13 @@ FILES = {
             'n': 'file6'
         }
     ],
-    'folder2/folder3': [
+    '/folder2/folder3': [
         {
             'k': 'd',
             'n': 'folder4'
         }
     ],
-    'folder2/folder3/folder4': [
+    '/folder2/folder3/folder4': [
         {
             'k': 'f',
             'n': 'file7'
@@ -91,7 +91,7 @@ def get_file():
     try:
         ret = FILES[path]
 
-        if path == 'folder2/folder3/folder4':
+        if path == '/folder2/folder3/folder4':
             time.sleep(TEST_SLEEP_DELAY_IN_LONGEST_PATH)
 
     except KeyError:

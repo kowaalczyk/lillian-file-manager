@@ -52,8 +52,8 @@ function getLinksWindows(dividedPath, root) {
     return parentsPaths;
 }
 
-function extractPathDirs(pathArg) {
-    'use strict';
+'use strict';
+function extractPathDirs(pathArg, remote = false) {
 
     // Default for case of root dir
     let dividedPath = [];
@@ -63,7 +63,7 @@ function extractPathDirs(pathArg) {
 
     if (pathArg !== parsedPath.root) {
 
-        if (os.platform() === 'linux') {
+        if (remote || os.platform() === 'linux') {
 
             dividedPath = splitLinux(parsedPath);
             parentsPaths = getLinksLinux(dividedPath, parsedPath.root);
@@ -165,25 +165,24 @@ function pathToJson(pathArg) {
     }
 }
 
-function dividePath(path) {
-    return path.split("/");
-}
-
-function extractParents(path) {
-    let dividedArg = dividePath(path);
-    let summed = '';
-    let parentPaths = [];
-
-    for (let i = 0; i < dividedArg.length; i++) {
-        summed = summed + '/' + dividedArg[i];
-        parentPaths.push(summed)
-    }
-
-    return parentPaths;
-}
+// function dividePath(path) {
+//     return path.split("/");
+// }
+//
+// function extractParents(path) {
+//     let dividedArg = dividePath(path);
+//     let summed = '';
+//     let parentPaths = [];
+//
+//     for (let i = 0; i < dividedArg.length; i++) {
+//         summed = summed + '/' + dividedArg[i];
+//         parentPaths.push(summed)
+//     }
+//
+//     return parentPaths;
+// }
 
 module.exports = {
     pathToJson,
-    dividePath,
-    extractParents
+    extractPathDirs
 };

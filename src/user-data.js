@@ -7,24 +7,41 @@ function createResponse(valid, msg) {
 class UserData {
 
     constructor(filePath = './.userData') {
-        this._INITIAL_LOCAL_ALIAS = 'Local';
-        this._INITIAL_LOCAL_LOCATION = {'alias': this._INITIAL_LOCAL_ALIAS, 'path': ''};
-        this._INITIAL_USER_DATA = {'local': [this._INITIAL_LOCAL_LOCATION], 'remote': []};
+        // todo initial empty user data
+        // this._INITIAL_USER_DATA = {'local': [], 'remote': []};
+        this._INITIAL_USER_DATA = {
+            "local": [],
+            "remote": [
+                {
+                    "alias": "test 3 sec sleep",
+                    "login": "dupa",
+                    "pass": "qweqweqwe",
+                    "path": "\/folder2\/folder3\/folder4",
+                    "type": "remote",
+                    "url": "http:\/\/localhost:5000"
+                },
+                {
+                    "alias": "test root",
+                    "login": "dupa",
+                    "pass": "qweqweqwe",
+                    "path": "\/",
+                    "type": "remote",
+                    "url": "http:\/\/localhost:5000"
+                }
+            ]
+        };
+
         this._filePath = filePath;
 
-        try {
-            this._userData = jsonfile.readFileSync(this._filePath);
-            console.log(this._userData);
-        } catch (e) {
-            console.log(e);
-            this._userData = this._INITIAL_USER_DATA;
-        }
-
-        if (this.getLocByAlias(this._INITIAL_LOCAL_ALIAS) === null) {
-            this.createLocation('local', this._INITIAL_LOCAL_LOCATION);
-        } else {
-            this.updateLocation(this._INITIAL_LOCAL_LOCATION, this._INITIAL_LOCAL_ALIAS);
-        }
+        // todo turning on reading userData from file
+        // try {
+        //     this._userData = jsonfile.readFileSync(this._filePath);
+        //     console.log(this._userData);
+        // } catch (e) {
+        //     console.log(e);
+        //     this._userData = this._INITIAL_USER_DATA;
+        // }
+        this._userData = this._INITIAL_USER_DATA;
     }
 
     /**
