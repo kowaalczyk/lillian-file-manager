@@ -87,6 +87,7 @@ Example for remote:
   "locationData" :
   {
     "alias" : "Main_server",
+    "path" : "favourite",
     "url" : "http://5.135.159.114/io/",
     "login" : "asd",
     "pass" : "asd"
