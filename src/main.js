@@ -48,7 +48,6 @@ app.on('ready', () => {
             mainWindow.close();
         } else {
             event.sender.send('updateUserData', userData.data());
-            console.log(userData.data());
 
             if (process.argv.length === NUM_OF_ARGS) {
                 let replyMsg = ph.pathToJson(process.argv[NUM_OF_ARGS - 1]);
@@ -73,15 +72,13 @@ app.on('ready', () => {
         const locTypeAndIndex = userData.findLoc(rMsg.alias);
         const current_session_id = rMsg.id;
 
-        console.log(rMsg);
-
         if (locTypeAndIndex === null) {
+            console.log("[DEBUG] localTypeAndIndex -> doesn't exist:");
             sendError(event);
         } else {
             const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
-            console.log(locData);
 
-            const arr = [];
+            let arr = [];
 
             oboe({
                 method: 'POST',
@@ -92,27 +89,25 @@ app.on('ready', () => {
                 },
                 json: locData
             }).node('!.*', (data) => {
-                console.log(data);
                 arr.push(data);
 
                 if (arr.length === 10) {
                     let parsedObjects = parseRemoteJsonChunk(arr, rMsg);
 
                     if (parsedObjects === null) {
+                        console.log("[DEBUG] Parsing remote JSON chunk");
                         sendError(event);
                     } else {
-                        console.log(parsedObjects);
-                        console.log(rMsg);
                         addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
+                        arr = [];
                     }
                 }
             }).fail((error) => {
+                console.log('[DEBUG] Oboe file:');
                 console.log(error);
                 sendError(event);
             }).done(() => {
-                console.log(arr);
                 if (arr.length !== 0) {
-                    console.log(rMsg);
                     addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
                 }
             });
