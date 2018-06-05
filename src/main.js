@@ -193,7 +193,7 @@ function parseRemoteJsonChunk(arr, rMsg) {
         alias: rMsg.alias,
         dividedPath: dividedPath,
         parentPaths: parentPaths,
-        path: rMsg.path,
+        path: ph.normalizeRemotePath(rMsg.path),
         filesNames: files,
         dirsNames: dirs,
         valid: true
