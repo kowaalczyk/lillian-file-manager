@@ -103,6 +103,7 @@ app.on('ready', () => {
                 },
                 json: locData
             }).start((status, headers) => {
+                console.log("[DEBUG] On start:");
                 console.log(status, headers);
             }).node('!.*', (data) => {
                 arr.push(data);
@@ -116,20 +117,23 @@ app.on('ready', () => {
                         console.log("[DEBUG] Parsing remote JSON chunk");
                         sendError(event);
                     } else {
-                        console.log(parsedObjects);
-                        console.log(rMsg);
                         addExtraAndSend(current_session_id, event, parsedObjects);
                     }
                 }
             }).fail((error) => {
                 console.log('[DEBUG] Oboe fail:');
                 console.log(error);
+                // At first every request to local server gets an error.
+                // It's connection error: ECONNRESET
+                // https://stackoverflow.com/questions/17245881/node-js-econnreset
                 sendError(event);
             }).done((response) => {
                 console.log(response);
                 if (arr.length !== 0) {
                     addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
                 }
+
+                event.sender.send('endOfStream');
             });
         }
     });
@@ -189,8 +193,6 @@ function addExtraAndSend(sessionId, event, validJsonReply) {
     validJsonReply.isLocal = false;
     validJsonReply.id = sessionId;
 
-    console.log("\n~~~~~~~~~~~ Sending remote response ~~~~~~~~~~");
-    console.log(validJsonReply);
     event.sender.send('response', validJsonReply);
 }
 
