@@ -112,13 +112,7 @@ app.on('ready', () => {
                     const array_copy = arr.slice();
                     arr.length = 0;
                     const parsedObjects = parseRemoteJsonChunk(array_copy, rMsg);
-
-                    if (parsedObjects === null) {
-                        console.log("[DEBUG] Parsing remote JSON chunk");
-                        sendError(event);
-                    } else {
-                        addExtraAndSend(current_session_id, event, parsedObjects);
-                    }
+                    addExtraAndSend(current_session_id, event, parsedObjects);
                 }
             }).fail((error) => {
                 console.log('[DEBUG] Oboe fail:');
@@ -126,7 +120,13 @@ app.on('ready', () => {
                 // At first every request to local server gets an error.
                 // It's connection error: ECONNRESET
                 // https://stackoverflow.com/questions/17245881/node-js-econnreset
-                sendError(event);
+                if (error.jsonBody) {
+                    const parsedObjects = parseRemoteJsonChunk(error.jsonBody, rMsg);
+                    addExtraAndSend(current_session_id, event, parsedObjects);
+                } else {
+                    sendError(event);
+                }
+
             }).done((response) => {
                 console.log(response);
                 if (arr.length !== 0) {
@@ -201,16 +201,16 @@ function parseRemoteJsonChunk(arr, rMsg) {
         return null;
     }
 
-    if (arr[0].e) {
+    if (arr[0].m) {
         return {
             valid: false,
-            error: arr[0].e
+            message: arr[0].m
         }
     }
 
     let files = arr.filter(item => (item.k === 'f')).map(f => f.n);
     let dirs = arr.filter(item => (item.k === 'd')).map(d => d.n);
-    let {dividedPath, parentPaths} = ph.extractPathDirs(rMsg.path);
+    let {dividedPath, parentPaths} = ph.extractPathDirs(rMsg.path, true);
 
     const parsedJsonChunk = {
         isLocal: false,

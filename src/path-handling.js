@@ -6,7 +6,7 @@ const invalidJson = {valid: false};
 
 // Assuming that there is something more than just root in the pathObject
 function splitLinux(pathObject) {
-    let pathList = pathObject.dir.split(path.sep);
+    let pathList = pathObject.dir.split('/');
     pathList[0] = pathObject.root;
 
     // In case '/home' dir is '/' and split returns ['', '']
@@ -22,7 +22,7 @@ function getLinksLinux(dividedPath, root) {
 
     for (let i = 1; i < dividedPath.length; i++) {
 
-        let new_link = parentsPaths[parentsPaths.length - 1] + dividedPath[i] + path.sep;
+        let new_link = parentsPaths[parentsPaths.length - 1] + dividedPath[i] + '/';
         parentsPaths.push(new_link);
     }
 
@@ -53,6 +53,7 @@ function getLinksWindows(dividedPath, root) {
 }
 
 'use strict';
+
 function extractPathDirs(pathArg, remote = false) {
 
     // Default for case of root dir
@@ -95,8 +96,8 @@ function pathToJson(pathArg) {
 
     if (pathArg === '') {
         return {
-            'dividedPath': [ '' ],
-            'parentPaths': [ '' ],
+            'dividedPath': [''],
+            'parentPaths': [''],
             'path': '',
             'filesNames': [],
             'dirsNames': [],
@@ -164,13 +165,12 @@ function pathToJson(pathArg) {
 }
 
 function normalizeRemotePath(pathArg) {
-    let normPathArg = path.normalize(pathArg);
     // Make sure that at the end of a path there is /
-    if (normPathArg.slice(-1) !== path.sep) {
-        normPathArg += path.sep;
+    if (pathArg.slice(-1) !== '/') {
+        pathArg += '/';
     }
 
-    return normPathArg;
+    return pathArg;
 }
 
 module.exports = {

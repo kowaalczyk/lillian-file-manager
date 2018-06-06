@@ -213,9 +213,10 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             // handle error
             if (response.message === undefined) {
+                console.log(response);
                 showError("Cannot open directory");
             } else {
-                showError(message);
+                showError(response.message);
             }
         }
 

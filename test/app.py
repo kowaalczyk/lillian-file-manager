@@ -96,10 +96,10 @@ def get_file():
             time.sleep(TEST_SLEEP_DELAY_IN_LONGEST_PATH)
 
     except KeyError:
-        return [{
+        return jsonify([{
             'k': 'e',
             'm': 'invalid path'
-        }], 404
+        }]), 404
 
     return jsonify(ret), 200
 
