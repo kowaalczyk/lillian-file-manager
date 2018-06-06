@@ -54,7 +54,7 @@ function getLinksWindows(dividedPath, root) {
 
 'use strict';
 function extractPathDirs(pathArg, remote = false) {
-    // console.log("EXTRACT PATH DIRS");
+
     // Default for case of root dir
     let dividedPath = [];
     let parentsPaths = [];
@@ -74,8 +74,6 @@ function extractPathDirs(pathArg, remote = false) {
         }
     }
 
-    // console.log(dividedPath);
-    // console.log(parentsPaths);
     return {dividedPath: dividedPath, parentPaths: parentsPaths}
 }
 

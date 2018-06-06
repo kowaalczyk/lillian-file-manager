@@ -80,20 +80,23 @@ app.on('ready', () => {
         const locTypeAndIndex = userData.findLoc(rMsg.alias);
         const current_session_id = rMsg.id;
 
-        console.log(rMsg);
-
         if (locTypeAndIndex === null) {
             console.log("[DEBUG] localTypeAndIndex -> doesn't exist:");
             sendError(event);
         } else {
-            const {path} = rMsg;
             const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
 
             let arr = [];
 
+            // Bug fix: left panel
+            if (rMsg.path !== '/' && rMsg.path.slice(-1) === '/') {
+                rMsg.path = rMsg.path.slice(0, -1);
+            }
+
+            console.log(locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`);
             activeStream = oboe({
                 method: 'POST',
-                url: locData.url + `?l=${locData.login}&p=${locData.pass}&q=${path}`,
+                url: locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`,
                 agent: false,
                 headers: {
                     'User-Agent': 'something',
@@ -119,7 +122,7 @@ app.on('ready', () => {
                     }
                 }
             }).fail((error) => {
-                console.log('[DEBUG] Oboe file:');
+                console.log('[DEBUG] Oboe fail:');
                 console.log(error);
                 sendError(event);
             }).done((response) => {
