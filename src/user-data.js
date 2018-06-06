@@ -14,7 +14,7 @@ class UserData {
             "remote": [
                 {
                     "alias": "test sleep",
-                    "login": "dupa",
+                    "login": "user1",
                     "pass": "qweqweqwe",
                     "path": "\/folder2\/folder3\/folder4",
                     "type": "remote",
@@ -22,7 +22,7 @@ class UserData {
                 },
                 {
                     "alias": "test root",
-                    "login": "dupa",
+                    "login": "user1",
                     "pass": "qweqweqwe",
                     "path": "\/",
                     "type": "remote",
@@ -30,7 +30,7 @@ class UserData {
                 },
                 {
                     "alias": "test error path",
-                    "login": "dupa",
+                    "login": "user1",
                     "pass": "qweqweqwe",
                     "path": "\/cshcbsjcksncksncksncksnc",
                     "type": "remote",
@@ -46,7 +46,7 @@ class UserData {
                 },
                 {
                     "alias": "test stream",
-                    "login": "dupa",
+                    "login": "user1",
                     "pass": "qweqweqwe",
                     "path": "\/folder3",
                     "type": "remote",
