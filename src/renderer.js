@@ -4,6 +4,8 @@ const {ipcRenderer} = require('electron');
 let requestId = null;
 let responseId = null;
 
+let currentLocation = null;
+
 function removeChildren(element) {
     while (element.firstChild) {
         element.removeChild(element.firstChild);
@@ -89,6 +91,7 @@ function renderLocationLabel(name) {
     console.log(name);
     const label = document.getElementById("location-label");
     label.textContent = name;
+
 }
 
 function renderMainSection(isLocal, alias, folders, files, currentPath, reset = true) {
@@ -160,9 +163,11 @@ function renderResponse(response) {
     renderLocationLabel(isLocal ? 'Local' : alias);
 
     if (isLocal) {
+        currentLocation = null;
         renderPanelLocal(dividedPath, parentPaths, "path-nav");
         renderMainSection(isLocal, alias, dirsNames, filesNames, path);
     } else {
+        currentLocation = alias;
         const {id} = response;
         console.log(requestId, responseId);
         if (id === requestId && id !== responseId) {
@@ -218,9 +223,9 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 showError(response.message);
             }
-        }
 
-        hideSpinner();
+            hideSpinner();
+        }
     });
 
     ipcRenderer.on('updateUserData', (event, response) => {
@@ -230,17 +235,29 @@ document.addEventListener("DOMContentLoaded", () => {
         renderPanelRemote(remote.map(object => object.alias), remote.map(object => object.path), 'remote-nav');
     });
 
+    ipcRenderer.on('endOfStream', (event) => {
+        hideSpinner();
+    });
+
     const pathForm = document.getElementById("path-form");
     const pathInput = document.getElementById("path-input");
     const pathButton = document.getElementById("path-button");
 
     pathButton.addEventListener("click", () => {
-        sendLocalRequest(pathInput.value);
+        if (currentLocation == null) {
+            sendLocalRequest(pathInput.value);
+        } else {
+            sendRemoteRequest(currentLocation, pathInput.value);
+        }
     });
 
     pathForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        sendLocalRequest(pathInput.value);
+        if (currentLocation == null) {
+            sendLocalRequest(pathInput.value);
+        } else {
+            sendRemoteRequest(currentLocation, pathInput.value);
+        }
     });
 
     const configButton = document.getElementById("config-button");

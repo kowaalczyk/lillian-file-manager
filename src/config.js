@@ -303,6 +303,14 @@ document.addEventListener("DOMContentLoaded", () => {
         renderLeftPanel();
     });
 
+    document.addEventListener("drop", (e) => {
+        e.preventDefault();
+    });
+
+    document.addEventListener("dragover", (e) => {
+        e.preventDefault();
+    });
+
     // tell main process that you're ready
     ipcRenderer.send('userConfig');
 });

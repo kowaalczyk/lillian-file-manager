@@ -71,6 +71,7 @@ app.on('ready', () => {
         replyMsg["isLocal"] = true;
         replyMsg["alias"] = "";
         event.sender.send('response', replyMsg);
+        event.sender.send('endOfStream');
     });
 
 
@@ -108,7 +109,7 @@ app.on('ready', () => {
             }).node('!.*', (data) => {
                 arr.push(data);
 
-                if (arr.length === 10) {
+                if (arr.length === 1) {
                     const array_copy = arr.slice();
                     arr.length = 0;
                     const parsedObjects = parseRemoteJsonChunk(array_copy, rMsg);
