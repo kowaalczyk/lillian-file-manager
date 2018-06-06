@@ -169,6 +169,8 @@ function addExtraAndSend(sessionId, event, validJsonReply) {
     validJsonReply.isLocal = false;
     validJsonReply.id = sessionId;
 
+    console.log("\n~~~~~~~~~~~ Sending remote response ~~~~~~~~~~");
+    console.log(validJsonReply);
     event.sender.send('response', validJsonReply);
 }
 
@@ -188,7 +190,7 @@ function parseRemoteJsonChunk(arr, rMsg) {
     let dirs = arr.filter(item => (item.k === 'd')).map(d => d.n);
     let {dividedPath, parentPaths} = ph.extractPathDirs(rMsg.path);
 
-    return {
+    const parsedJsonChunk = {
         isLocal: false,
         alias: rMsg.alias,
         dividedPath: dividedPath,
@@ -198,4 +200,6 @@ function parseRemoteJsonChunk(arr, rMsg) {
         dirsNames: dirs,
         valid: true
     };
+
+    return parsedJsonChunk;
 }

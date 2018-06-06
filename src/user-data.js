@@ -35,11 +35,12 @@ class UserData {
 
         try {
             this._userData = jsonfile.readFileSync(this._filePath);
-            console.log(this._userData);
         } catch (e) {
             console.log(e);
-            this._userData = this._INITIAL_USER_DATA;
         }
+
+        console.log("\n~~~~~~~~ User data on start ~~~~~~~");
+        console.log(this._userData);
     }
 
     /**
