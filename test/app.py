@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+import json
+from flask import Flask, request, jsonify, Response
 import time
 
 app = Flask(__name__)
@@ -95,13 +96,21 @@ def get_file():
             time.sleep(TEST_SLEEP_DELAY_IN_LONGEST_PATH)
 
     except KeyError:
-        ret = [{
+        return [{
             'k': 'e',
             'm': 'invalid path'
         }], 404
 
     return jsonify(ret), 200
 
+@app.route('/stream', methods=['POST', 'GET'])
+def stream():
+    string = json.dumps([{'k': 'f', 'n': 'file' + str(i)} for i in range(10**2)])
+    def generate():
+        for c in string:
+            time.sleep(0.01)
+            yield c
+    return Response(generate(), mimetype='application/json')
 
 if __name__ == '__main__':
     app.run()

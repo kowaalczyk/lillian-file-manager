@@ -55,7 +55,7 @@ function renderPanelLocal(names, paths, panelId) {
     pathNav.appendChild(holder);
 }
 
-function renderPanelRemote(names, paths, panelId) {
+function renderPanelRemote(names, paths, panelId, alias = null) {
     const pathNav = document.getElementById(panelId);
     removeChildren(pathNav);
 
@@ -70,8 +70,13 @@ function renderPanelRemote(names, paths, panelId) {
         li.appendChild(a);
 
         a.addEventListener("click", () => {
-            const path = paths[i];
-            sendRemoteRequest(name, path);
+            if (alias == null) {
+                const path = paths[i];
+                sendRemoteRequest(name, path);
+            } else {
+                const path = paths[i];
+                sendRemoteRequest(alias, path);
+            }
         });
 
         holder.appendChild(li);
@@ -153,16 +158,16 @@ function renderResponse(response) {
     pathInput.value = path;
 
     renderLocationLabel(isLocal ? 'Local' : alias);
-    renderPanelLocal(dividedPath, parentPaths, "path-nav");
-
-    console.log(path);
 
     if (isLocal) {
+        renderPanelLocal(dividedPath, parentPaths, "path-nav");
         renderMainSection(isLocal, alias, dirsNames, filesNames, path);
     } else {
         const {id} = response;
+        console.log(requestId, responseId);
         if (id === requestId && id !== responseId) {
             responseId = requestId;
+            renderPanelRemote(dividedPath, parentPaths, "path-nav", alias);
             renderMainSection(isLocal, alias, dirsNames, filesNames, path, true);
         } else  if (id === responseId && id === responseId) {
             renderMainSection(isLocal, alias, dirsNames, filesNames, path, false);
@@ -207,7 +212,11 @@ document.addEventListener("DOMContentLoaded", () => {
             renderResponse(response);
         } else {
             // handle error
-            showError("Cannot open directory");
+            if (response.message === undefined) {
+                showError("Cannot open directory");
+            } else {
+                showError(message);
+            }
         }
 
         hideSpinner();

@@ -5,8 +5,6 @@ const path = require('path');
 const {app, BrowserWindow, ipcMain} = electron;
 const isDev = require('electron-is-dev');
 
-const http = require('http');
-const querystring = require('querystring');
 const oboe = require('oboe');
 
 const ph = require('./path-handling.js');
@@ -23,6 +21,14 @@ if (!isDev) {
 let mainWindow = null;
 let optionsWindow = null;
 let userData = null;
+let activeStream = null;
+
+function killStream(stream) {
+    if (stream !== null) {
+        stream.abort();
+        stream = null;
+    }
+}
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -60,6 +66,7 @@ app.on('ready', () => {
     });
 
     ipcMain.on('localRequest', (event, pathArg) => {
+        killStream(activeStream);
         let replyMsg = ph.pathToJson(pathArg);
         replyMsg["isLocal"] = true;
         replyMsg["alias"] = "";
@@ -69,44 +76,54 @@ app.on('ready', () => {
 
 
     ipcMain.on('remoteRequest', (event, rMsg) => {
+        killStream(activeStream);
         const locTypeAndIndex = userData.findLoc(rMsg.alias);
         const current_session_id = rMsg.id;
+
+        console.log(rMsg);
 
         if (locTypeAndIndex === null) {
             console.log("[DEBUG] localTypeAndIndex -> doesn't exist:");
             sendError(event);
         } else {
+            const {path} = rMsg;
             const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
 
             let arr = [];
 
-            oboe({
+            activeStream = oboe({
                 method: 'POST',
-                url: locData.url + `?l=${locData.login}&p=${locData.pass}&q=${locData.path}`,
+                url: locData.url + `?l=${locData.login}&p=${locData.pass}&q=${path}`,
                 agent: false,
                 headers: {
                     'User-Agent': 'something',
                 },
                 json: locData
+            }).start((status, headers) => {
+                console.log(status, headers);
             }).node('!.*', (data) => {
                 arr.push(data);
 
                 if (arr.length === 10) {
-                    let parsedObjects = parseRemoteJsonChunk(arr, rMsg);
+                    const array_copy = arr.slice();
+                    arr.length = 0;
+                    const parsedObjects = parseRemoteJsonChunk(array_copy, rMsg);
 
                     if (parsedObjects === null) {
                         console.log("[DEBUG] Parsing remote JSON chunk");
                         sendError(event);
                     } else {
-                        addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
-                        arr = [];
+                        console.log(parsedObjects);
+                        console.log(rMsg);
+                        addExtraAndSend(current_session_id, event, parsedObjects);
                     }
                 }
             }).fail((error) => {
                 console.log('[DEBUG] Oboe file:');
                 console.log(error);
                 sendError(event);
-            }).done(() => {
+            }).done((response) => {
+                console.log(response);
                 if (arr.length !== 0) {
                     addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
                 }
@@ -117,8 +134,8 @@ app.on('ready', () => {
     ipcMain.on('newWindowRequest', (event, arg) => {
         optionsWindow = new BrowserWindow({
             icon: path.join(__dirname, 'icons/folder128.png'),
-            width: 1200,
-            height: 800,
+            width: 1000,
+            height: 700,
             minWidth: 600,
             minHeight: 400,
             parent: mainWindow,

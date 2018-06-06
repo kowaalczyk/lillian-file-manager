@@ -13,7 +13,7 @@ class UserData {
             "local": [],
             "remote": [
                 {
-                    "alias": "test 3 sec sleep",
+                    "alias": "test sleep",
                     "login": "dupa",
                     "pass": "qweqweqwe",
                     "path": "\/folder2\/folder3\/folder4",
@@ -27,6 +27,30 @@ class UserData {
                     "path": "\/",
                     "type": "remote",
                     "url": "http:\/\/127.0.0.1:5000\/"
+                },
+                {
+                    "alias": "test error path",
+                    "login": "dupa",
+                    "pass": "qweqweqwe",
+                    "path": "\/cshcbsjcksncksncksncksnc",
+                    "type": "remote",
+                    "url": "http:\/\/127.0.0.1:5000\/"
+                },
+                {
+                    "alias": "test error login",
+                    "login": "csjnsjcn",
+                    "pass": "csscscscsc",
+                    "path": "\/",
+                    "type": "remote",
+                    "url": "http:\/\/127.0.0.1:5000\/"
+                },
+                {
+                    "alias": "test stream",
+                    "login": "dupa",
+                    "pass": "qweqweqwe",
+                    "path": "\/folder3",
+                    "type": "remote",
+                    "url": "http:\/\/127.0.0.1:5000\/stream"
                 }
             ]
         };
@@ -37,6 +61,7 @@ class UserData {
             this._userData = jsonfile.readFileSync(this._filePath);
         } catch (e) {
             console.log(e);
+            this._userData = this._INITIAL_USER_DATA;
         }
 
         console.log("\n~~~~~~~~ User data on start ~~~~~~~");
