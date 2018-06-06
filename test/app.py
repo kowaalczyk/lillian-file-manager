@@ -4,7 +4,7 @@ import time
 
 app = Flask(__name__)
 
-TEST_LOGIN = 'dupa'
+TEST_LOGIN = 'user1'
 TEST_PASSWORD = 'qweqweqwe'
 
 TEST_SLEEP_DELAY_IN_LONGEST_PATH = 3
