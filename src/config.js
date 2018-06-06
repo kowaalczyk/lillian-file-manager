@@ -153,8 +153,8 @@ function renderList(data, listId) {
 }
 
 function renderLeftPanel() {
-    renderList(state.local, 'local-list');
-    renderList(state.remote, 'remote-list');
+    renderList(state.local.sort((a, b) => (a.alias > b.alias) - (a.alias < b.alias)), 'local-list');
+    renderList(state.remote.sort((a, b) => (a.alias > b.alias) - (a.alias < b.alias)), 'remote-list');
     // renderRemote(state.remote);
 }
 

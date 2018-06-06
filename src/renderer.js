@@ -230,6 +230,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ipcRenderer.on('updateUserData', (event, response) => {
         const {local, remote} = response;
+        local.sort((a, b) => (a.alias > b.alias) - (a.alias < b.alias));
+        remote.sort((a, b) => (a.alias > b.alias) - (a.alias < b.alias));
         console.log(response);
         renderPanelLocal(local.map(object => object.alias), local.map(object => object.path), 'local-nav');
         renderPanelRemote(remote.map(object => object.alias), remote.map(object => object.path), 'remote-nav');
