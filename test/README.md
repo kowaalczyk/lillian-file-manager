@@ -22,6 +22,3 @@ Path contents can be checked in python file.
   
 #### Example request  
 GET `http://localhost:5000/?l=dupa&p=qweqweqwe&q=/folder2/folder3/folder4`
-  
-### TODO:  
-Automate usage with npm script  

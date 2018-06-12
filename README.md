@@ -4,6 +4,10 @@ https://github.com/kowaalczyk/lillian-file-manager/
 
 Too learn more about our project, see `PRESENTATION.pdf`.  
 
+## Screenshots
+
+![alt text](screenshots/screenshot.png)
+
 ## Features  
 
 Implemented:  
