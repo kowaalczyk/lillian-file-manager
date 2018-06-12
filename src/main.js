@@ -7,8 +7,9 @@ const isDev = require('electron-is-dev');
 
 const oboe = require('oboe');
 
-const ph = require('./path-handling.js');
-const UserData = require('./user-data');
+const ph = require('./modules/path-handling.js');
+const UserData = require('./modules/user-data');
+const {handleLocalRequest, handleRemoteRequest} = require('./modules/request-handling');
 
 const NUM_OF_ARGS = isDev ? 3 : 2;  // in dev mode, electron offsets argument by 1
 
@@ -22,13 +23,6 @@ let mainWindow = null;
 let optionsWindow = null;
 let userData = null;
 let activeStream = null;
-
-function killStream(stream) {
-    if (stream !== null) {
-        stream.abort();
-        stream = null;
-    }
-}
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -65,78 +59,12 @@ app.on('ready', () => {
         }
     });
 
-    ipcMain.on('localRequest', (event, pathArg) => {
-        killStream(activeStream);
-        let replyMsg = ph.pathToJson(pathArg);
-        replyMsg["isLocal"] = true;
-        replyMsg["alias"] = "";
-        event.sender.send('response', replyMsg);
-        event.sender.send('endOfStream');
+    ipcMain.on('localRequest', (event, msg) => {
+        handleLocalRequest(event, msg, activeStream);
     });
 
-
-
-    ipcMain.on('remoteRequest', (event, rMsg) => {
-        killStream(activeStream);
-        const locTypeAndIndex = userData.findLoc(rMsg.alias);
-        const current_session_id = rMsg.id;
-
-        if (locTypeAndIndex === null) {
-            console.log("[DEBUG] localTypeAndIndex -> doesn't exist:");
-            sendError(event);
-        } else {
-            const locData = userData.getLocByTypeAndIndex(locTypeAndIndex);
-
-            let arr = [];
-
-            // Bug fix: left panel
-            if (rMsg.path !== '/' && rMsg.path.slice(-1) === '/') {
-                rMsg.path = rMsg.path.slice(0, -1);
-            }
-
-            console.log(locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`);
-            activeStream = oboe({
-                method: 'POST',
-                url: locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`,
-                agent: false,
-                headers: {
-                    'User-Agent': 'something',
-                },
-                json: locData
-            }).start((status, headers) => {
-                console.log("[DEBUG] On start:");
-                console.log(status, headers);
-            }).node('!.*', (data) => {
-                arr.push(data);
-
-                if (arr.length === 1) {
-                    const array_copy = arr.slice();
-                    arr.length = 0;
-                    const parsedObjects = parseRemoteJsonChunk(array_copy, rMsg);
-                    addExtraAndSend(current_session_id, event, parsedObjects);
-                }
-            }).fail((error) => {
-                console.log('[DEBUG] Oboe fail:');
-                console.log(error);
-                // At first every request to local server gets an error.
-                // It's connection error: ECONNRESET
-                // https://stackoverflow.com/questions/17245881/node-js-econnreset
-                if (error.jsonBody) {
-                    const parsedObjects = parseRemoteJsonChunk(error.jsonBody, rMsg);
-                    addExtraAndSend(current_session_id, event, parsedObjects);
-                } else {
-                    sendError(event);
-                }
-
-            }).done((response) => {
-                console.log(response);
-                if (arr.length !== 0) {
-                    addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
-                }
-
-                event.sender.send('endOfStream');
-            });
-        }
+    ipcMain.on('remoteRequest', (event, msg) => {
+        handleRemoteRequest(event, msg, activeStream);
     });
 
     ipcMain.on('newWindowRequest', (event, arg) => {

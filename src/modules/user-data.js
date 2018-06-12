@@ -1,3 +1,5 @@
+'use strict';
+
 const jsonfile = require('jsonfile');
 
 function createResponse(valid, msg) {

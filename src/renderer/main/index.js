@@ -1,3 +1,5 @@
+'use strict';
+
 const uuid = require('uuid/v1');
 const {ipcRenderer} = require('electron');
 
