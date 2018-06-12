@@ -2,6 +2,8 @@
 A file manager created in electron.js, assignment for software engneering course at MIM UW, spring semester 2017-18.  
 https://github.com/kowaalczyk/lillian-file-manager/  
 
+Too learn more about our project, see `PRESENTATION.pdf`.  
+
 ## Features  
 
 Implemented:  
@@ -141,7 +143,3 @@ Main responds to remoteRequest and localRequest with message 'response'. This me
 ```
 
 When options window is closed main sends message 'updateUserData' which contains whole userData after all changes.
-
-## License  
-
-TODO  
