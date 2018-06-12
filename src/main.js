@@ -39,7 +39,7 @@ app.on('ready', () => {
         minHeight: 400
     });
 
-    mainWindow.loadURL(`file://${__dirname}/templates/index.html`);
+    mainWindow.loadURL(`file://${__dirname}/renderer/main/index.html`);
 
     mainWindow.on('closed', () => {
         mainWindow = null;
@@ -150,7 +150,7 @@ app.on('ready', () => {
             modal: true
         });
 
-        optionsWindow.loadURL(`file://${__dirname}/templates/config.html`);
+        optionsWindow.loadURL(`file://${__dirname}/renderer/config/index.html`);
 
         optionsWindow.on('closed', () => {
             event.sender.send('updateUserData', userData.data());

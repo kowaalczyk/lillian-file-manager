@@ -105,7 +105,7 @@ function renderMainSection(isLocal, alias, folders, files, currentPath, reset = 
 
     let holder = document.createDocumentFragment();
     for (let folder of folders) {
-        let div = createObjectDiv(folder, "../icons/folder128.png", currentPath);
+        let div = createObjectDiv(folder, "../../icons/folder128.png", currentPath);
         div.addEventListener("dblclick", () => {
             const path = currentPath + folder;
 
@@ -119,7 +119,7 @@ function renderMainSection(isLocal, alias, folders, files, currentPath, reset = 
     }
 
     for (let file of files) {
-        let div = createObjectDiv(file, "../icons/file128.png", currentPath);
+        let div = createObjectDiv(file, "../../icons/file128.png", currentPath);
         holder.appendChild(div);
     }
 
