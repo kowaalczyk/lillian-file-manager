@@ -54,6 +54,18 @@ function parseRemoteJsonChunk(arr, rMsg) {
     };
 }
 
+function customNormalizeURL(url) {
+    const regex = /((?:http|https):\/\/)(localhost)((?:[\/:])?.*)/;
+    const normalizedUrl = normalizeURL(url);
+    const match = normalizedUrl.match(regex);
+
+    if (match == null) {
+        return normalizedUrl;
+    } else {
+        return (match[1] + '127.0.0.1' + match[3]);
+    }
+}
+
 /**
  * Handles request for folder on remote disk.
  * @param event
@@ -85,7 +97,7 @@ function handleRemoteRequest(event, rMsg, userData) {
         try {
             activeStream = oboe({
                 method: 'POST',
-                url: normalizeURL(apiUrl),
+                url: customNormalizeURL(apiUrl),
                 agent: false,
                 json: locData
             }).start((status, headers) => {
