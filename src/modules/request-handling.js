@@ -9,6 +9,49 @@ function killStream(stream) {
     }
 }
 
+
+function sendError(event) {
+    const errorResponse = {
+        valid: false
+    };
+    event.sender.send('response', errorResponse);
+}
+
+function addExtraAndSend(sessionId, event, validJsonReply) {
+    validJsonReply.isLocal = false;
+    validJsonReply.id = sessionId;
+
+    event.sender.send('response', validJsonReply);
+}
+
+function parseRemoteJsonChunk(arr, rMsg) {
+    if (!arr || !arr[0]) {
+        return null;
+    }
+
+    if (arr[0].m) {
+        return {
+            valid: false,
+            message: arr[0].m
+        }
+    }
+
+    const files = arr.filter(item => (item.k === 'f')).map(f => f.n);
+    const dirs = arr.filter(item => (item.k === 'd')).map(d => d.n);
+    const {dividedPath, parentPaths} = ph.extractPathDirs(rMsg.path, true);
+
+    return {
+        isLocal: false,
+        alias: rMsg.alias,
+        dividedPath: dividedPath,
+        parentPaths: parentPaths,
+        path: ph.normalizeRemotePath(rMsg.path),
+        filesNames: files,
+        dirsNames: dirs,
+        valid: true
+    };
+}
+
 function handleRemoteRequest(event, rMsg, activeStream) {
     killStream(activeStream);
     const locTypeAndIndex = userData.findLoc(rMsg.alias);
