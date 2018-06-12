@@ -1,6 +1,7 @@
 'use strict';
 
 const ph = require('./path-handling.js');
+const normalizeURL = require('normalize-url');
 const oboe = require('oboe');
 
 function killStream(stream) {
@@ -84,7 +85,7 @@ function handleRemoteRequest(event, rMsg, userData) {
         try {
             activeStream = oboe({
                 method: 'POST',
-                url: apiUrl,
+                url: normalizeURL(apiUrl),
                 agent: false,
                 json: locData
             }).start((status, headers) => {
