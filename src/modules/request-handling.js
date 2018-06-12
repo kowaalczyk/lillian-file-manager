@@ -91,14 +91,14 @@ function handleRemoteRequest(event, rMsg, userData) {
         }
 
         const arr = [];
-        const apiUrl = locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`;
-
-        console.log(normalizeURL(apiUrl));
 
         try {
+            const apiUrl = customNormalizeURL(locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`);
+            console.log(normalizeURL(apiUrl));
+
             activeStream = oboe({
                 method: 'POST',
-                url: customNormalizeURL(apiUrl),
+                url: apiUrl,
                 agent: false,
                 json: locData
             }).start((status, headers) => {
