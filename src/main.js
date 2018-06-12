@@ -4,11 +4,10 @@ const electron = require('electron');
 const path = require('path');
 const {app, BrowserWindow, ipcMain} = electron;
 const isDev = require('electron-is-dev');
-const oboe = require('oboe');
 
 const ph = require('./modules/path-handling.js');
 const UserData = require('./modules/user-data');
-const {handleLocalRequest, handleRemoteRequest} = require('./modules/request-handling');
+const {handleLocalRequest, handleRemoteRequest, killStream} = require('./modules/request-handling');
 
 const NUM_OF_ARGS = isDev ? 3 : 2;  // in dev mode, electron offsets argument by 1
 
@@ -80,11 +79,13 @@ app.on('ready', () => {
     });
 
     ipcMain.on('localRequest', (event, msg) => {
-        handleLocalRequest(event, msg, activeStream);
+        killStream(activeStream);
+        activeStream = handleLocalRequest(event, msg);
     });
 
     ipcMain.on('remoteRequest', (event, msg) => {
-        handleRemoteRequest(event, msg, activeStream);
+        killStream(activeStream);
+        activeStream = handleRemoteRequest(event, msg, userData);
     });
 
     ipcMain.on('newWindowRequest', (event, arg) => {

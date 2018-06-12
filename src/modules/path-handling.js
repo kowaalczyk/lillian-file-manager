@@ -54,10 +54,7 @@ function getLinksWindows(dividedPath, root) {
     return parentsPaths;
 }
 
-'use strict';
-
 function extractPathDirs(pathArg, remote = false) {
-
     // Default for case of root dir
     let dividedPath = [];
     let parentsPaths = [];
@@ -111,13 +108,15 @@ function pathToJson(pathArg) {
         try {
             let normPathArg = path.normalize(pathArg);
 
-            // LINUX:
-            // path.normalize('/foo/bar//baz/asdf/quux/..');
-            // Returns: '/foo/bar/baz/asdf'
+            /*
+                LINUX:
+                path.normalize('/foo/bar//baz/asdf/quux/..');
+                Returns: '/foo/bar/baz/asdf'
 
-            // WINDOWS:
-            // path.normalize('C:\\temp\\\\foo\\bar\\..\\');
-            // Returns: 'C:\\temp\\foo\\'
+                WINDOWS:
+                path.normalize('C:\\temp\\\\foo\\bar\\..\\');
+                Returns: 'C:\\temp\\foo\\'
+            */
 
             if (fs.existsSync(normPathArg)) {
                 let items = fs.readdirSync(normPathArg);
@@ -125,16 +124,16 @@ function pathToJson(pathArg) {
                 let dirsNames = [];
 
                 // Make sure that at the end of a path there is / or \:
+                // normPathArg now always ends on path.sep ('/' or w/e windows has)
                 if (normPathArg.slice(-1) !== path.sep) {
                     normPathArg += path.sep;
                 }
-                // normPathArg now always ends on path.sep ('/' or w/e windows has)
 
                 for (let item of items) {
-                    let pathToItem = normPathArg + item;
+                    const pathToItem = normPathArg + item;
 
                     try {
-                        let stats = fs.statSync(pathToItem);
+                        const stats = fs.statSync(pathToItem);
 
                         if (stats.isDirectory()) {
                             dirsNames.push(item);
@@ -143,12 +142,14 @@ function pathToJson(pathArg) {
                         }
                     } catch (err) {
                         // do not display item when fs.stat throws error (permission error)
+                        // this is actually not an error, logging only for debug
+                        console.log(err);
                     }
                 }
 
-                let pathDirsJson = extractPathDirs(normPathArg);
+                const pathDirsJson = extractPathDirs(normPathArg);
                 pathDirsJson['path'] = normPathArg;
-                let folderContentJson = {
+                const folderContentJson = {
                     filesNames: filesNames,
                     dirsNames: dirsNames,
                     valid: true

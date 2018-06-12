@@ -91,7 +91,7 @@ function showRemoteEdit(directory) {
 }
 
 function renderList(data, listId) {
-    /*
+    /* Renders a list of:
         <li class="uk-flex">
             <div>alias</div>
             <div class="uk-flex-1"></div>
@@ -110,20 +110,20 @@ function renderList(data, listId) {
     for (const directory of data) {
         const {alias} = directory;
 
-        let li = document.createElement('li');
+        const li = document.createElement('li');
         li.className = 'uk-flex';
 
-        let aliasDiv = document.createElement('div');
+        const aliasDiv = document.createElement('div');
         aliasDiv.textContent = alias;
         li.appendChild(aliasDiv);
 
-        let bufferDiv = document.createElement('div');
+        const bufferDiv = document.createElement('div');
         bufferDiv.className = 'uk-flex-1';
         li.appendChild(bufferDiv);
 
-        let buttonDiv = document.createElement('div');
+        const buttonDiv = document.createElement('div');
 
-        let pencilA = document.createElement('a');
+        const pencilA = document.createElement('a');
         pencilA.setAttribute('uk-icon', 'icon: pencil');
         pencilA.href = "";
         pencilA.addEventListener("click", (event) => {
@@ -137,7 +137,7 @@ function renderList(data, listId) {
         });
         buttonDiv.appendChild(pencilA);
 
-        let trashA = document.createElement('a');
+        const trashA = document.createElement('a');
         trashA.setAttribute('uk-icon', 'icon: trash');
         trashA.href = "";
         buttonDiv.appendChild(trashA);
@@ -157,7 +157,6 @@ function renderList(data, listId) {
 function renderLeftPanel() {
     renderList(state.local.sort((a, b) => (a.alias > b.alias) - (a.alias < b.alias)), 'local-list');
     renderList(state.remote.sort((a, b) => (a.alias > b.alias) - (a.alias < b.alias)), 'remote-list');
-    // renderRemote(state.remote);
 }
 
 function setupLocalEditListeners() {
@@ -167,12 +166,11 @@ function setupLocalEditListeners() {
     form.addEventListener('submit', (event) => {
         event.preventDefault();
         const data = {
-            "oldAlias" : state.activeAlias,
-            "locationData" :
-                {
-                    "alias" : nameInput.value,
-                    "path" : pathInput.value
-                }
+            "oldAlias": state.activeAlias,
+            "locationData": {
+                "alias": nameInput.value,
+                "path": pathInput.value
+            }
         };
         sendUpdateRequest(data);
         clearForm(form);
@@ -206,11 +204,11 @@ function setupRemoteEditListeners() {
         event.preventDefault();
         const data = {
             "oldAlias": state.activeAlias,
-            "locationData" : {
-                "alias" : nameInput.value,
-                "url" : urlInput.value,
-                "login" : loginInput.value,
-                "pass" : passwordInput.value,
+            "locationData": {
+                "alias": nameInput.value,
+                "url": urlInput.value,
+                "login": loginInput.value,
+                "pass": passwordInput.value,
                 "path": pathInput.value
             }
         };
@@ -240,7 +238,6 @@ function setupAddListeners() {
             case "local":
                 nameInput.parentElement.hidden = false;
                 pathInput.parentElement.hidden = false;
-
                 urlInput.parentElement.hidden = true;
                 loginInput.parentElement.hidden = true;
                 passwordInput.parentElement.hidden = true;
@@ -283,7 +280,6 @@ function setupAddListeners() {
                 break;
         }
 
-
         sendAddRequest(data);
         clearForm(form);
     });
@@ -295,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupRemoteEditListeners();
 
     ipcRenderer.on('actionResult', (event, response) => {
-       console.log(response);
+        console.log(response);
     });
 
     ipcRenderer.on('userConfig', (event, response) => {

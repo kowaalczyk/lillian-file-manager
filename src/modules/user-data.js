@@ -7,10 +7,7 @@ function createResponse(valid, msg) {
 }
 
 class UserData {
-
     constructor(filePath = './.userData') {
-        // todo initial empty user data
-        // this._INITIAL_USER_DATA = {'local': [], 'remote': []};
         this._INITIAL_USER_DATA = {
             "local": [],
             "remote": [
@@ -65,9 +62,6 @@ class UserData {
             console.log(e);
             this._userData = this._INITIAL_USER_DATA;
         }
-
-        console.log("\n~~~~~~~~ User data on start ~~~~~~~");
-        console.log(this._userData);
     }
 
     /**
@@ -105,7 +99,7 @@ class UserData {
     /**
      * Returns full object that is present at @param[index] in array containing all objects of provided type.
      * Can throw TypeError or return null if bad index is specified.
-     * @param parameters {locType, index} - can be received by calling #findLoc
+     * Parameters {locType, index} - can be received by calling #findLoc
      */
     getLocByTypeAndIndex(parameters) {
         const {locType, index} = parameters;
@@ -114,9 +108,9 @@ class UserData {
 
     getLocByAlias(alias) {
         if (alias) {
-            let locInfo = this.findLoc(alias);
+            const locInfo = this.findLoc(alias);
             if (locInfo) {
-                let {locType, index} = locInfo;
+                const {locType, index} = locInfo;
                 return this._userData[locType][index];
             }
         }
@@ -130,7 +124,7 @@ class UserData {
      * and locType is a string.
      */
     createLocation(locType, newLocation) {
-        let alias = newLocation['alias'];
+        const alias = newLocation['alias'];
 
         if (this.aliasUsed(alias)) {
             return createResponse(false, 'Alias already used.');
@@ -147,7 +141,7 @@ class UserData {
      * and locType is a string.
      */
     updateLocation(updatedLocation, oldAlias = null) {
-        let newAlias = updatedLocation['alias'];
+        const newAlias = updatedLocation['alias'];
         let locInfo;
 
         if (oldAlias && (newAlias !== oldAlias)) {
@@ -156,19 +150,19 @@ class UserData {
                 return {'valid': false, 'msg': 'New alias is already used.'}
             }
 
-            locInfo = this.findLoc(oldAlias); // assuming that it always exists ?
+            locInfo = this.findLoc(oldAlias);
         } else {
             // no renaming required
-            locInfo = this.findLoc(newAlias); // assuming that it always exists ?
+            locInfo = this.findLoc(newAlias);
         }
 
         if (locInfo) {
-            let {locType, index} = locInfo;
+            const {locType, index} = locInfo;
             this._userData[locType].splice(index, 1);
             this._userData[locType].push(updatedLocation);
             return createResponse(true, 'Location has been updated.');
         } else {
-            return createResponse(false, 'Previous location does not exist ???');
+            return createResponse(false, 'Previous location does not exist.');
         }
     }
 
@@ -180,7 +174,7 @@ class UserData {
         if (!this.aliasUsed(alias)) {
             return createResponse(false, 'Location does not exist.');
         } else {
-            let {locType, index} = this.findLoc(alias);
+            const {locType, index} = this.findLoc(alias);
             this._userData[locType].splice(index, 1);
             return {'valid' : true, 'msg' : 'Location has been removed.'};
         }

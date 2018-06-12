@@ -1,6 +1,7 @@
 'use strict';
 
 const ph = require('./path-handling.js');
+const oboe = require('oboe');
 
 function killStream(stream) {
     if (stream !== null) {
@@ -52,8 +53,16 @@ function parseRemoteJsonChunk(arr, rMsg) {
     };
 }
 
-function handleRemoteRequest(event, rMsg, activeStream) {
-    killStream(activeStream);
+/**
+ * Handles request for folder on remote disk.
+ * @param event
+ * @param rMsg
+ * @param userData
+ * @returns last active stream (can be killed when loading is terminated)
+ */
+function handleRemoteRequest(event, rMsg, userData) {
+    let activeStream = null;
+
     const locTypeAndIndex = userData.findLoc(rMsg.alias);
     const current_session_id = rMsg.id;
 
@@ -71,53 +80,66 @@ function handleRemoteRequest(event, rMsg, activeStream) {
         console.log(locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`);
 
         const arr = [];
-        activeStream = oboe({
-            method: 'POST',
-            url: locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`,
-            agent: false,
-            json: locData
-        }).start((status, headers) => {
-            console.log("[DEBUG] On start:");
-            console.log(status, headers);
-        }).node('!.*', (data) => {
-            arr.push(data);
+        const apiUrl = locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`;
+        try {
+            activeStream = oboe({
+                method: 'POST',
+                url: apiUrl,
+                agent: false,
+                json: locData
+            }).start((status, headers) => {
+                console.log("[DEBUG] On start:");
+                console.log(status, headers);
+            }).node('!.*', (data) => {
+                arr.push(data);
 
-            if (arr.length === 10) {
-                const array_copy = arr.slice();
-                arr.length = 0;  // truncate array
-                const parsedObjects = parseRemoteJsonChunk(array_copy, rMsg);
-                addExtraAndSend(current_session_id, event, parsedObjects);
-            }
-        }).fail((error) => {
-            console.log('[DEBUG] Oboe fail:');
-            console.log(error);
-            if (error.jsonBody) {
-                const parsedObjects = parseRemoteJsonChunk(error.jsonBody, rMsg);
-                addExtraAndSend(current_session_id, event, parsedObjects);
-            } else {
-                sendError(event);
-            }
-        }).done((response) => {
-            console.log(response);
-            if (arr.length !== 0) {
-                addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
-            }
+                if (arr.length === 10) {
+                    const array_copy = arr.slice();
+                    arr.length = 0;  // truncate array
+                    const parsedObjects = parseRemoteJsonChunk(array_copy, rMsg);
+                    addExtraAndSend(current_session_id, event, parsedObjects);
+                }
+            }).fail((error) => {
+                console.error(error);
+                if (error.jsonBody) {
+                    const parsedObjects = parseRemoteJsonChunk(error.jsonBody, rMsg);
+                    addExtraAndSend(current_session_id, event, parsedObjects);
+                } else {
+                    sendError(event);
+                }
+            }).done((response) => {
+                console.log(response);
+                if (arr.length !== 0) {
+                    addExtraAndSend(current_session_id, event, parseRemoteJsonChunk(arr, rMsg));
+                }
 
-            event.sender.send('endOfStream');
-        });
+                event.sender.send('endOfStream');
+            });
+        } catch (e) {
+            console.error(e);
+            sendError(event);
+        }
+        return activeStream;
     }
 }
 
-function handleLocalRequest(event, pathArg, activeStream) {
-    killStream(activeStream);
+/**
+ * Handles request for folder on local disk.
+ * @param event
+ * @param pathArg
+ * @returns last active stream (can be killed when loading is terminated)
+ */
+function handleLocalRequest(event, pathArg) {
     let replyMsg = ph.pathToJson(pathArg);
     replyMsg["isLocal"] = true;
     replyMsg["alias"] = "";
     event.sender.send('response', replyMsg);
     event.sender.send('endOfStream');
+    return null;  // loading local folders is not performed chunk-by-chunk (yet)
 }
 
 module.exports = {
     handleRemoteRequest,
-    handleLocalRequest
+    handleLocalRequest,
+    killStream
 };

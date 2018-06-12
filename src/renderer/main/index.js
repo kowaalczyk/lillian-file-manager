@@ -5,7 +5,6 @@ const {ipcRenderer} = require('electron');
 
 let requestId = null;
 let responseId = null;
-
 let currentLocation = null;
 
 function removeChildren(element) {
@@ -38,11 +37,12 @@ function renderPanelLocal(names, paths, panelId) {
     removeChildren(pathNav);
 
     let holder = document.createDocumentFragment();
+
+    // Create a list of: <li><a class="uk-link-text">directory</a></li>
     for (let i = 0; i < names.length; i++) {
-        // <li><a class="uk-link-text">directory</a></li>
         const name = names[i];
-        let li = document.createElement('li');
-        let a = document.createElement('a');
+        const li = document.createElement('li');
+        const a = document.createElement('a');
         a.className = "uk-link-text";
         a.textContent = name;
         li.appendChild(a);
@@ -63,12 +63,13 @@ function renderPanelRemote(names, paths, panelId, alias = null) {
     const pathNav = document.getElementById(panelId);
     removeChildren(pathNav);
 
-    let holder = document.createDocumentFragment();
+    const holder = document.createDocumentFragment();
+
+    // Creates a list of: <li><a class="uk-link-text">directory</a></li>
     for (let i = 0; i < names.length; i++) {
-        // <li><a class="uk-link-text">directory</a></li>
         const name = names[i];
-        let li = document.createElement('li');
-        let a = document.createElement('a');
+        const li = document.createElement('li');
+        const a = document.createElement('a');
         a.className = "uk-link-text";
         a.textContent = name;
         li.appendChild(a);
@@ -105,9 +106,9 @@ function renderMainSection(isLocal, alias, folders, files, currentPath, reset = 
         removeChildren(mainSection);
     }
 
-    let holder = document.createDocumentFragment();
+    const holder = document.createDocumentFragment();
     for (let folder of folders) {
-        let div = createObjectDiv(folder, "../../icons/folder128.png", currentPath);
+        const div = createObjectDiv(folder, "../../icons/folder128.png", currentPath);
         div.addEventListener("dblclick", () => {
             const path = currentPath + folder;
 
@@ -121,7 +122,7 @@ function renderMainSection(isLocal, alias, folders, files, currentPath, reset = 
     }
 
     for (let file of files) {
-        let div = createObjectDiv(file, "../../icons/file128.png", currentPath);
+        const div = createObjectDiv(file, "../../icons/file128.png", currentPath);
         holder.appendChild(div);
     }
 
@@ -149,7 +150,6 @@ function showSpinner() {
     spinner.style.visibility = "visible";
 }
 
-
 function hideSpinner() {
     const spinner = document.getElementById("spinner");
     spinner.style.visibility = "hidden";
@@ -176,7 +176,7 @@ function renderResponse(response) {
             responseId = requestId;
             renderPanelRemote(dividedPath, parentPaths, "path-nav", alias);
             renderMainSection(isLocal, alias, dirsNames, filesNames, path, true);
-        } else  if (id === responseId && id === responseId) {
+        } else if (id === responseId && id === responseId) {
             renderMainSection(isLocal, alias, dirsNames, filesNames, path, false);
         } else {
             console.log("wrong response id");
