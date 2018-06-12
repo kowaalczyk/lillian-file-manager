@@ -78,10 +78,11 @@ function handleRemoteRequest(event, rMsg, userData) {
             rMsg.path = rMsg.path.slice(0, -1);
         }
 
-        console.log(locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`);
-
         const arr = [];
         const apiUrl = locData.url + `?l=${locData.login}&p=${locData.pass}&q=${rMsg.path}`;
+
+        console.log(normalizeURL(apiUrl));
+
         try {
             activeStream = oboe({
                 method: 'POST',
