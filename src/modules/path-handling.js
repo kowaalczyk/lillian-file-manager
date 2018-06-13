@@ -108,6 +108,11 @@ function pathToJson(pathArg) {
         try {
             let normPathArg = path.normalize(pathArg);
 
+            // WINDOWS: corrects path typed by user, C: -> C:\\
+            if (normPathArg.length === 3) {
+                normPathArg = normPathArg.replace(/:.$/,":\\")
+            }
+
             /*
                 LINUX:
                 path.normalize('/foo/bar//baz/asdf/quux/..');
