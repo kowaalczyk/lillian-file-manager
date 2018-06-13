@@ -2,7 +2,7 @@
 A file manager created in electron.js, assignment for software engneering course at MIM UW, spring semester 2017-18.  
 https://github.com/kowaalczyk/lillian-file-manager/  
 
-Too learn more about our project, see `PRESENTATION.pdf`.  
+To learn more about our project, see `PRESENTATION.pdf`.  
 
 ## Screenshots
 
